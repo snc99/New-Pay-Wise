@@ -1,10 +1,10 @@
 "use client";
 
-import { Inter, Mulish } from "next/font/google";
+import { Mulish } from "next/font/google";
 // import { usePathname } from "next/navigation";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
 const mulish = Mulish({ subsets: ["latin"] });
 // const disableNavbar = ["/auth/login", "/dashboard"];
 // const disableFooter = ["/auth/login", "/dashboard"];
