@@ -1,7 +1,21 @@
-export default function Home() {
+import Home from "./components/landingPage/Home";
+import About from "./components/landingPage/About";
+// import Dept from "./components/Debt/Debt";
+import Services from "./components/landingPage/Services";
+import Contact from "./components/landingPage/Contact";
+import Header from "./components/landingPage/Header";
+import Footer from "./components/footer/Footer";
+
+export default function Page() {
   return (
-    <div>
-      <h1>Landing Page</h1>
-    </div>
+    <main>
+      <Header />
+      <Home />
+      <About />
+      {/* <Dept /> */}
+      <Services />
+      <Contact />
+      <Footer />
+    </main>
   );
 }
