@@ -1,6 +1,6 @@
 import Home from "./components/landingPage/Home";
 import About from "./components/landingPage/About";
-// import Dept from "./components/Debt/Debt";
+import Dept from "./components/landingPage/Debt";
 import Services from "./components/landingPage/Services";
 import Contact from "./components/landingPage/Contact";
 import Header from "./components/landingPage/Header";
@@ -12,7 +12,7 @@ export default function Page() {
       <Header />
       <Home />
       <About />
-      {/* <Dept /> */}
+      <Dept />
       <Services />
       <Contact />
       <Footer />
