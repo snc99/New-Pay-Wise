@@ -8,3 +8,61 @@
 // 1. git fetch (tarik dari github ke local)
 // 2. git checkout developer
 // 3. git pull origin developer
+
+# Recommended for most uses
+DATABASE_URL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+
+# For uses requiring a connection without pgbouncer
+DATABASE_URL_UNPOOLED=postgresql://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+
+# Parameters for constructing your own connection string
+PGHOST=ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech
+PGHOST_UNPOOLED=ep-weathered-poetry-a1n304cv.ap-southeast-1.aws.neon.tech
+PGUSER=neondb_owner
+PGDATABASE=neondb
+PGPASSWORD=rEDIpi6ZeJ7j
+
+# Parameters for Vercel Postgres Templates
+POSTGRES_URL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+POSTGRES_URL_NON_POOLING=postgresql://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+POSTGRES_USER=neondb_owner
+POSTGRES_HOST=ep-weathered-poetry-a1n304cv.ap-southeast-1.aws.neon.tech
+POSTGRES_PASSWORD=rEDIpi6ZeJ7j
+POSTGRES_DATABASE=neondb
+POSTGRES_URL_NO_SSL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb
+POSTGRES_PRISMA_URL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true&connect_timeout=15
+
+NEXTAUTH_SECRET=Irvansandy123@
+
+==========================================
+// types/next-auth.d.ts
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import NextAuth from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+      username: string;
+    };
+  }
+
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    username: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role: string;
+  }
+}
+
+

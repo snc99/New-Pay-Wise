@@ -1,53 +1,4 @@
-// "use client";
-
-// import { useSession, signOut } from "next-auth/react";
-
-// export default function DashboardPage() {
-//   const { data: session, status } = useSession();
-
-//   if (status === "loading") {
-//     return <div>Loading...</div>;
-//   }
-
-//   if (
-//     !session ||
-//     !session.user ||
-//     (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN")
-//   ) {
-//     return <div>Akses ditolak.</div>;
-//   }
-
-//   return (
-//     <div className="space-y-6">
-//       <div className="grid grid-cols-3 gap-4">
-//         <div className="bg-blue-100 p-4 rounded">
-//           <p className="text-sm text-gray-500">Total User</p>
-//           <p className="text-xl font-bold">12</p>
-//         </div>
-//         <div className="bg-green-100 p-4 rounded">
-//           <p className="text-sm text-gray-500">Total Utang</p>
-//           <p className="text-xl font-bold">Rp 5.000.000</p>
-//         </div>
-//         <div className="bg-yellow-100 p-4 rounded">
-//           <p className="text-sm text-gray-500">Total Pembayaran</p>
-//           <p className="text-xl font-bold">Rp 2.500.000</p>
-//         </div>
-//       </div>
-//       <div>
-//         <p>Selamat datang, {session.user.name}!</p>
-//         <p>Role: {session.user.role}</p>
-
-//         {/* Tombol Logout */}
-//         <button
-//           onClick={() => signOut({ callbackUrl: "/auth/login" })}
-//           className="mt-4 rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-//         >
-//           Logout
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
+"use client";
 
 import { AppSidebar } from "@/components/sideBar/app-sidebar";
 import {
@@ -64,6 +15,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Users, DollarSign, Wallet } from "lucide-react";
+import Image from "next/image";
 
 export default function DashboardPage() {
   return (
@@ -91,10 +44,52 @@ export default function DashboardPage() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
+            {/* Card 1 */}
+            <div className="relative rounded-xl bg-muted/50 p-4 shadow-md">
+              <div className="text-lg font-semibold">Total User</div>
+              <div className="mt-2 text-3xl font-bold">120</div>
+              <div className="mt-2 text-lg font-semibold">Pengguna</div>
+
+              {/* Shape di kanan atas */}
+              <div className="absolute right-4 top-4 opacity-10">
+                <Image src="/shape.svg" alt="Shape" width={40} height={40} />
+              </div>
+
+              {/* Icon bawah kanan */}
+              <div className="absolute bottom-4 right-4 text-muted-foreground">
+                <Users className="h-6 w-6" />
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="relative rounded-xl bg-muted/50 p-4 shadow-md">
+              <div className="text-lg font-semibold">Bayar</div>
+              <div className="mt-2 text-3xl font-bold">Rp 2.500.000</div>
+
+              <div className="absolute right-4 top-4 opacity-10">
+                <Image src="/shape.svg" alt="Shape" width={40} height={40} />
+              </div>
+
+              <div className="absolute bottom-4 right-4 text-muted-foreground">
+                <DollarSign className="h-6 w-6" />
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="relative rounded-xl bg-muted/50 p-4 shadow-md">
+              <div className="text-lg font-semibold">Total Hutang</div>
+              <div className="mt-2 text-3xl font-bold">Rp 5.000.000</div>
+
+              <div className="absolute right-4 top-4 opacity-10">
+                <Image src="/shape.svg" alt="Shape" width={40} height={40} />
+              </div>
+
+              <div className="absolute bottom-4 right-4 text-muted-foreground">
+                <Wallet className="h-6 w-6" />
+              </div>
+            </div>
           </div>
+
           <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
         </div>
       </SidebarInset>
