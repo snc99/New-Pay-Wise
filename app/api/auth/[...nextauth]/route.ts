@@ -13,7 +13,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Authorize called with:", credentials);
         if (!credentials) return null;
 
         const user = await prisma.admin.findUnique({
@@ -21,7 +20,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          console.log("User not found");
           return null;
         }
 
@@ -31,17 +29,15 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordCorrect) {
-          console.log("Wrong password");
           return null;
         }
-
-        console.log("User authenticated:", user);
 
         return {
           id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
+          username: user.username,
         };
       },
     }),
@@ -54,17 +50,19 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      console.log("JWT callback:", { token, user });
       if (user) {
         token.role = user.role;
+        token.username = user.username;
       }
       return token;
     },
 
     async session({ session, token }) {
-      console.log("Session callback:", { session, token });
       if (typeof token.role === "string") {
         session.user.role = token.role;
+      }
+      if (typeof token.username === "string") {
+        session.user.username = token.username; // ✅ Tambahkan ini
       }
       return session;
     },

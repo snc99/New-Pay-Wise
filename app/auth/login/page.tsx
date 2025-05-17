@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [currentShape, setCurrentShape] = useState(0); // <-- Tambahkan ini
+  const [currentShape, setCurrentShape] = useState(0);
   const router = useRouter();
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
