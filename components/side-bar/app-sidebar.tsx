@@ -3,8 +3,8 @@
 import * as React from "react";
 import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
 
-import { NavMain } from "@/components/sideBar/nav-main";
-import { NavUser } from "@/components/sideBar/nav-user";
+import { NavMain } from "@/components/side-bar/nav-main";
+import { NavUser } from "@/components/side-bar/nav-user";
 // import { TeamSwitcher } from "@/components/sideBar/team-switcher";
 import {
   Sidebar,
@@ -48,9 +48,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Pencatatan",
-      url: "/dashboard/debt",
+      url: "/dashboard/debit",
       icon: BookOpen,
-      isActive: pathname === "/dashboard/debt",
+      isActive: pathname === "/dashboard/debit",
     },
     {
       title: "Pembayaran",
@@ -67,9 +67,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ? [
           {
             title: "Tambah Akun",
-            url: "/dashboard/settings/add-account",
+            url: "/dashboard/add-account",
             icon: Settings2,
-            isActive: pathname === "/dashboard/settings/add-account",
+            isActive: pathname === "/dashboard/add-account",
           },
         ]
       : []),
