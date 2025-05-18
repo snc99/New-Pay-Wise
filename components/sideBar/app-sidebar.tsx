@@ -81,6 +81,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ];
 
+  if (status === "loading") {
+  }
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex justify-center items-center">

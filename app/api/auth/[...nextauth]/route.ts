@@ -1,5 +1,5 @@
 import { compare } from "bcryptjs";
-import prisma from "@/lib/prisma"; // sesuaikan pathnya
+import prisma from "@/lib/prisma";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
@@ -43,10 +43,10 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/auth/login", // halaman login
-    signOut: "/auth/logout", // kalau kamu punya logout page
-    error: "/auth/login", // kalau error redirect ke login
-    newUser: "/dashboard", // saat user baru dibuat (tidak selalu terpakai)
+    signIn: "/auth/login",
+    signOut: "/auth/logout",
+    error: "/auth/login",
+    newUser: "/dashboard",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
       }
       if (typeof token.username === "string") {
-        session.user.username = token.username; // ✅ Tambahkan ini
+        session.user.username = token.username;
       }
       return session;
     },
@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
+    maxAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
