@@ -38,7 +38,8 @@ export default function AddAccountPage() {
 
   useEffect(() => {
     fetchAdmins();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleEdit = (admin: Admin) => {
     setEditAdmin(admin);
