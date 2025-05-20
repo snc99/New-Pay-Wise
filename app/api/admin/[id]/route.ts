@@ -5,13 +5,12 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const resolvedParams = await params; // <-- await dulu
+  const resolvedParams = await params; 
   const adminId = resolvedParams.id;
 
   const body = await req.json();
   const { name, email, username, role } = body;
 
-  // Validasi dasar (bisa ditambahkan lebih lanjut)
   if (!name || !email || !username || !role) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }

@@ -16,22 +16,31 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, username, password, role } = body;
 
-    if (!name || !email || !username || !password) {
+    if (![name, email, username, password].every(Boolean)) {
       return NextResponse.json(
-        { message: "All fields are required" },
+        { message: "Semua field wajib diisi" },
         { status: 400 }
       );
     }
 
-    const existingUser = await prisma.admin.findFirst({
-      where: {
-        OR: [{ email }, { username }],
-      },
+    const existingEmail = await prisma.admin.findUnique({
+      where: { email },
     });
 
-    if (existingUser) {
+    if (existingEmail) {
       return NextResponse.json(
-        { message: "Email or username already taken" },
+        { field: "email", message: "Email sudah digunakan" },
+        { status: 409 }
+      );
+    }
+
+    const existingUsername = await prisma.admin.findUnique({
+      where: { username },
+    });
+
+    if (existingUsername) {
+      return NextResponse.json(
+        { field: "username", message: "Username sudah digunakan" },
         { status: 409 }
       );
     }
