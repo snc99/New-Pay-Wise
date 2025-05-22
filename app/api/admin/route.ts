@@ -1,14 +1,67 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
-  const admins = await prisma.admin.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  return NextResponse.json(admins);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page") || "1");
+  const search = searchParams.get("search") || "";
+  const limit = 7;
+  const skip = (page - 1) * limit;
+
+  try {
+    const where: Prisma.AdminWhereInput = search
+      ? {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+            {
+              email: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+            {
+              username: {
+                contains: search,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+          ],
+        }
+      : {};
+
+    const [admins, totalAdmins] = await Promise.all([
+      prisma.admin.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.admin.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      data: admins,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalAdmins / limit),
+        totalItems: totalAdmins,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to fetch admins" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: Request) {

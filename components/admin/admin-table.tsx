@@ -23,6 +23,7 @@ import {
   Mail,
 } from "lucide-react";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 interface Admin {
   id: string;
@@ -37,7 +38,7 @@ interface Admin {
 interface AdminTableProps {
   data: Admin[];
   onEdit: (admin: Admin) => void;
-  onDelete: (admin: Admin) => void; // Diubah dari adminId ke admin object
+  onDelete: (admin: Admin) => void;
 }
 
 export default function AdminTable({
@@ -46,78 +47,94 @@ export default function AdminTable({
   onDelete,
 }: AdminTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nama</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Username</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Dibuat</TableHead>
-          <TableHead className="text-right">Aksi</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((admin) => (
-          <TableRow key={admin.id}>
-            <TableCell>{admin.name}</TableCell>
-            <TableCell>{admin.email}</TableCell>
-            <TableCell>{admin.username}</TableCell>
-            <TableCell>
-              <span
-                className={`px-2 py-1 rounded-full text-xs ${
-                  admin.role === "SUPERADMIN"
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-blue-100 text-blue-800"
-                }`}
-              >
-                {admin.role}
-              </span>
-            </TableCell>
-            <TableCell>
-              {new Date(admin.createdAt).toLocaleDateString()}
-            </TableCell>
-            <TableCell className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      navigator.clipboard.writeText(admin.username)
-                    }
-                  >
-                    <ClipboardCopy className="mr-2 h-4 w-4" />
-                    <span>Copy username</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigator.clipboard.writeText(admin.email)}
-                  >
-                    <Mail className="mr-2 h-4 w-4" />
-                    <span>Copy email</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onEdit(admin)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>Edit admin</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-red-600"
-                    onClick={() => onDelete(admin)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Hapus admin</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
+    <div className="rounded-xl  bg-white">
+      <Table>
+        <TableHeader className="bg-muted/40">
+          <TableRow>
+            <TableHead>Nama</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Username</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Dibuat</TableHead>
+            <TableHead className="text-right">Aksi</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={6}
+                className="text-center py-8 text-muted-foreground"
+              >
+                Tidak ada data admin
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((admin) => (
+              <TableRow key={admin.id}>
+                <TableCell>{admin.name}</TableCell>
+                <TableCell>{admin.email}</TableCell>
+                <TableCell>{admin.username}</TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
+                      admin.role === "SUPERADMIN"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-green-100 text-green-700"
+                    )}
+                  >
+                    {admin.role}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {new Date(admin.createdAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          navigator.clipboard.writeText(admin.username)
+                        }
+                      >
+                        <ClipboardCopy className="mr-2 h-4 w-4" /> Salin
+                        Username
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          navigator.clipboard.writeText(admin.email)
+                        }
+                      >
+                        <Mail className="mr-2 h-4 w-4" /> Salin Email
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit(admin)}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onDelete(admin)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" /> Hapus
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

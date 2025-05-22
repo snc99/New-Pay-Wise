@@ -66,7 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ...(isSuperAdmin
       ? [
           {
-            title: "Tambah Akun",
+            title: "Manajemen Akun",
             url: "/dashboard/add-account",
             icon: Settings2,
             isActive: pathname === "/dashboard/add-account",
