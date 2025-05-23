@@ -9,7 +9,7 @@ import { DeleteAdminModal } from "@/components/admin/delete-admin-modal";
 import { AdminTableSkeleton } from "@/components/admin/table-skeleton";
 import { Pagination } from "@/components/admin/Pagination";
 import { SearchInput } from "@/components/admin/SearchInput";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface Admin {
   id: string;
@@ -57,7 +57,7 @@ export default function AddAccountPage() {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    fetchAdmins(1, term); // Reset ke halaman 1 saat search
+    fetchAdmins(1, term);
   };
 
   const handlePageChange = (page: number) => {
@@ -96,11 +96,18 @@ export default function AddAccountPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <Card>
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <CardTitle className="text-2xl font-bold">Manajemen Admin</CardTitle>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <Card className="border border-muted shadow-md rounded-2xl">
+        <CardHeader>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold tracking-tight">
+              Manajemen Admin
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Kelola akun admin yang memiliki akses sistem.
+            </p>
+          </div>
+          <div className="mt-4 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4">
             <SearchInput
               placeholder="Cari admin..."
               onSearch={handleSearch}
@@ -109,16 +116,18 @@ export default function AddAccountPage() {
             <AdminForm onSuccess={() => fetchAdmins(1)} />
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {isLoading ? (
             <AdminTableSkeleton />
           ) : (
             <>
-              <AdminTable
-                data={admins}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
+              <div className="overflow-x-auto">
+                <AdminTable
+                  data={admins}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              </div>
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -129,7 +138,6 @@ export default function AddAccountPage() {
         </CardContent>
       </Card>
 
-      {/* Modal tetap di render */}
       {editAdmin && (
         <ModalEditAdmin
           open={editModalOpen}

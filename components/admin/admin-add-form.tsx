@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToastNotify } from "@/lib/useToastNotify";
 import { adminSchema } from "@/lib/validation-zod/admin-schema";
-import { FiUserPlus, FiX, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiUserPlus, FiEye, FiEyeOff } from "react-icons/fi";
 
 interface Props {
   onSuccess: () => void;
@@ -138,19 +138,11 @@ export default function AdminForm({ onSuccess }: Props) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] rounded-lg">
-        <div className="relative">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">
-              Tambah Admin Baru
-            </DialogTitle>
-          </DialogHeader>
-          <button
-            onClick={() => setOpen(false)}
-            className="absolute top-0 right-0 p-1 rounded-full hover:bg-gray-100 transition-colors"
-          >
-            <FiX className="h-5 w-5 text-gray-500" />
-          </button>
-        </div>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-gray-800">
+            Tambah Admin Baru
+          </DialogTitle>
+        </DialogHeader>
 
         <form
           className="grid gap-5 py-4"

@@ -16,47 +16,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ClipboardCopy,
-  Edit,
-  MoreHorizontal,
-  Trash2,
-  Mail,
-} from "lucide-react";
+import { Edit, MoreHorizontal, Trash2, Phone, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-interface Admin {
+interface User {
   id: string;
   name: string;
-  email: string;
-  username: string;
-  role: "SUPERADMIN" | "ADMIN";
+  phone: string;
+  address: string;
   createdAt: string;
   updatedAt: string;
 }
 
-interface AdminTableProps {
-  data: Admin[];
-  onEdit: (admin: Admin) => void;
-  onDelete: (admin: Admin) => void;
+interface UserTableProps {
+  data: User[];
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
 }
 
-export default function AdminTable({
-  data,
-  onEdit,
-  onDelete,
-}: AdminTableProps) {
+export default function UserTable({ data, onEdit, onDelete }: UserTableProps) {
   return (
-    <div className="rounded-xl  bg-white">
+    <div className="rounded-xl bg-white">
       <Table>
         <TableHeader className="bg-muted/40">
           <TableRow>
             <TableHead>Nama</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Username</TableHead>
-            <TableHead>Role</TableHead>
+            <TableHead>Telepon</TableHead>
+            <TableHead>Alamat</TableHead>
             <TableHead>Dibuat</TableHead>
             <TableHead className="text-right">Aksi</TableHead>
           </TableRow>
@@ -64,10 +51,10 @@ export default function AdminTable({
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6}>
+              <TableCell colSpan={5}>
                 <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
                   <Image
-                    src="/empty-state.svg" // ganti dengan path gambar kamu
+                    src="/empty-state.svg"
                     alt="Tidak ada data"
                     width={160}
                     height={160}
@@ -83,25 +70,13 @@ export default function AdminTable({
               </TableCell>
             </TableRow>
           ) : (
-            data.map((admin) => (
-              <TableRow key={admin.id}>
-                <TableCell>{admin.name}</TableCell>
-                <TableCell>{admin.email}</TableCell>
-                <TableCell>{admin.username}</TableCell>
+            data.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.phone}</TableCell>
+                <TableCell>{user.address}</TableCell>
                 <TableCell>
-                  <span
-                    className={cn(
-                      "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                      admin.role === "SUPERADMIN"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-green-100 text-green-700"
-                    )}
-                  >
-                    {admin.role}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {new Date(admin.createdAt).toLocaleDateString("id-ID", {
+                  {new Date(user.createdAt).toLocaleDateString("id-ID", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -116,27 +91,26 @@ export default function AdminTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                      <DropdownMenuSeparator asChild />
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() =>
-                          navigator.clipboard.writeText(admin.username)
+                          navigator.clipboard.writeText(user.phone)
                         }
                       >
-                        <ClipboardCopy className="mr-2 h-4 w-4" /> Salin
-                        Username
+                        <Phone className="mr-2 h-4 w-4" /> Salin Telepon
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
-                          navigator.clipboard.writeText(admin.email)
+                          navigator.clipboard.writeText(user.address)
                         }
                       >
-                        <Mail className="mr-2 h-4 w-4" /> Salin Email
+                        <MapPin className="mr-2 h-4 w-4" /> Salin Alamat
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(admin)}>
+                      <DropdownMenuItem onClick={() => onEdit(user)}>
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => onDelete(admin)}
+                        onClick={() => onDelete(user)}
                         className="text-red-600"
                       >
                         <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Hapus

@@ -11,6 +11,7 @@ import { Admin } from "@/types/admin";
 import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { useToastNotify } from "@/lib/useToastNotify";
+import Image from "next/image";
 
 interface DeleteAdminModalProps {
   open: boolean;
@@ -53,27 +54,38 @@ export function DeleteAdminModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-red-600" />
-            Hapus Admin
+      <DialogContent className="sm:max-w-[420px] text-center px-6 py-8">
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/delete-warning.svg"
+            alt="Ilustrasi hapus"
+            width={200}
+            height={160}
+          />
+        </div>
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
+            Yakin ingin menghapus {admin?.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            Apakah Anda yakin ingin menghapus{" "}
-            <span className="font-semibold text-foreground">{admin?.name}</span>
-            ? Aksi ini tidak dapat dibatalkan.
+          <p className="text-sm text-muted-foreground text-center">
+            {admin?.name} akan dihapus secara permanen.
           </p>
         </DialogHeader>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button variant="outline" onClick={onClose}>
+        <div className="mt-6 flex justify-center gap-3">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={loading}
+            className="w-32"
+          >
             Batal
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={loading}
+            className="w-32"
           >
             {loading ? (
               <>
