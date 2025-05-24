@@ -29,13 +29,42 @@ export async function PUT(
   return NextResponse.json(user);
 }
 
-export async function DELETE(
-  _: Request,
-  { params }: { params: { id: string } }
-) {
-  await prisma.user.delete({
-    where: { id: params.id },
-  });
+export async function DELETE(request: Request) {
+  try {
+    const { pathname } = new URL(request.url);
+    // Contoh pathname: /api/users/123
+    const parts = pathname.split("/");
+    const id = parts[parts.length - 1]; // ambil id terakhir dari URL
 
-  return NextResponse.json({ success: true });
+    if (!id) {
+      return NextResponse.json(
+        { message: "User ID tidak ditemukan" },
+        { status: 400 }
+      );
+    }
+
+    // Cek apakah user dengan id tersebut ada
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    // Delete user
+    await prisma.user.delete({ where: { id } });
+
+    return NextResponse.json(
+      { message: "User berhasil dihapus" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Delete User Error:", error);
+    return NextResponse.json(
+      { message: "Terjadi kesalahan server" },
+      { status: 500 }
+    );
+  }
 }

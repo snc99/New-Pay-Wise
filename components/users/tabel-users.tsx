@@ -33,9 +33,17 @@ interface UserTableProps {
   data: User[];
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
+  searchTerm: string;
+  isSearching: boolean;
 }
 
-export default function UserTable({ data, onEdit, onDelete }: UserTableProps) {
+export default function UserTable({
+  data,
+  onEdit,
+  onDelete,
+  searchTerm,
+  isSearching,
+}: UserTableProps) {
   return (
     <div className="rounded-xl bg-white">
       <Table>
@@ -53,19 +61,39 @@ export default function UserTable({ data, onEdit, onDelete }: UserTableProps) {
             <TableRow>
               <TableCell colSpan={5}>
                 <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                  <Image
-                    src="/empty-state.svg"
-                    alt="Tidak ada data"
-                    width={160}
-                    height={160}
-                    className="mb-6"
-                  />
-                  <h3 className="text-lg font-semibold text-foreground">
-                    Hasil Tidak Ditemukan
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Silakan coba dengan kata kunci yang berbeda.
-                  </p>
+                  {isSearching && searchTerm ? (
+                    <>
+                      <Image
+                        src="/empty-state.svg"
+                        alt="Hasil pencarian tidak ditemukan"
+                        width={160}
+                        height={160}
+                        className="mb-6"
+                      />
+                      <h3 className="text-lg font-semibold text-foreground">
+                        Hasil Tidak Ditemukan
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Silakan coba dengan kata kunci yang berbeda.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Image
+                        src="/data-not-found.svg"
+                        alt="Belum ada data"
+                        width={160}
+                        height={160}
+                        className="mb-6"
+                      />
+                      <h3 className="text-lg font-semibold text-foreground">
+                        Belum Ada Data
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Data belum tersedia, silakan tambahkan data baru.
+                      </p>
+                    </>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
