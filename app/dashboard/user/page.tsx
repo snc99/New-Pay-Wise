@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import AdminForm from "@/components/admin/admin-add-form";
-import ModalEditAdmin from "@/components/admin/admin-edit";
-import AdminTable from "@/components/admin/admin-table";
+import { useState, useEffect } from "react";
 import { useToastNotify } from "@/lib/useToastNotify";
-import { DeleteAdminModal } from "@/components/admin/delete-admin-modal";
 import { AdminTableSkeleton } from "@/components/admin/table-skeleton";
 import { Pagination } from "@/components/admin/Pagination";
 import { SearchInput } from "@/components/admin/SearchInput";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import UserTable from "@/components/users/tabel-users";
-import User from "@prisma/client";
-import { U } from "framer-motion/dist/types.d-CtuPurYT";
+import UserTable from "@/components/users/tabel";
+import EditModal from "@/components/users/edit-modal";
+import { DeleteUserModal } from "@/components/users/delete";
+import UserForm from "@/components/users/user-form";
 
 interface User {
   id: string;
@@ -25,8 +22,8 @@ interface User {
 
 export default function UserPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [editAdmin, setEditAdmin] = useState<User | null>(null);
-  const [deleteAdmin, setDeleteAdmin] = useState<User | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,34 +65,34 @@ export default function UserPage() {
   };
 
   const handleEdit = (user: User) => {
-    setEditAdmin(user);
+    setEditUser(user);
     setEditModalOpen(true);
   };
 
-  const handleDelete = (User: User) => {
-    setDeleteAdmin(User);
+  const handleDelete = (user: User) => {
+    setDeleteUser(user);
     setDeleteModalOpen(true);
   };
 
-  // const closeEditModal = () => {
-  //   setEditModalOpen(false);
-  //   setEditAdmin(null);
-  // };
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditUser(null);
+  };
 
-  // const closeDeleteModal = () => {
-  //   setDeleteModalOpen(false);
-  //   setDeleteAdmin(null);
-  // };
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setDeleteUser(null);
+  };
 
-  // const onUpdated = () => {
-  //   fetchUsers();
-  //   closeEditModal();
-  // };
+  const onUpdated = () => {
+    fetchUsers();
+    closeEditModal();
+  };
 
-  // const onDeleted = () => {
-  //   fetchUsers();
-  //   closeDeleteModal();
-  // };
+  const onDeleted = () => {
+    fetchUsers();
+    closeDeleteModal();
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -115,7 +112,7 @@ export default function UserPage() {
               onSearch={handleSearch}
               className="w-full sm:w-64"
             />
-            <AdminForm onSuccess={() => fetchUsers(1)} />
+            <UserForm onSuccess={() => fetchUsers(1)} />
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -140,23 +137,23 @@ export default function UserPage() {
         </CardContent>
       </Card>
 
-      {/* {editUsers && (
-        <ModalEditUsers
+      {editUser && (
+        <EditModal
           open={editModalOpen}
           onClose={closeEditModal}
-          users={editAdmin}
+          user={editUser}
           onUpdated={onUpdated}
         />
-      )} */}
+      )}
 
-      {/* {deleteAdmin && (
-        <DeleteAdminModal
+      {deleteUser && (
+        <DeleteUserModal
           open={deleteModalOpen}
           onClose={closeDeleteModal}
-          admin={deleteAdmin}
+          user={deleteUser}
           onDeleted={onDeleted}
         />
-      )} */}
+      )}
     </div>
   );
 }

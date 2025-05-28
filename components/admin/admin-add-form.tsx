@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToastNotify } from "@/lib/useToastNotify";
-import { adminSchema } from "@/lib/validation-zod/admin-schema";
+import { adminSchema } from "@/lib/validation-zod/admin";
 import { FiUserPlus, FiEye, FiEyeOff } from "react-icons/fi";
 
 interface Props {

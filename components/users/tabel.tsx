@@ -54,7 +54,7 @@ export default function UserTable({ data, onEdit, onDelete }: UserTableProps) {
               <TableCell colSpan={5}>
                 <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
                   <Image
-                    src="/empty-state.svg"
+                    src="/data-not-found.svg"
                     alt="Tidak ada data"
                     width={160}
                     height={160}
@@ -64,7 +64,7 @@ export default function UserTable({ data, onEdit, onDelete }: UserTableProps) {
                     Hasil Tidak Ditemukan
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Silakan coba dengan kata kunci yang berbeda.
+                    Data user belum di masukkan.
                   </p>
                 </div>
               </TableCell>
