@@ -13,26 +13,29 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToastNotify } from "@/lib/useToastNotify";
 import { z } from "zod";
-import { FiUserPlus } from "react-icons/fi";
+import { FiPlusCircle } from "react-icons/fi";
 
-// Schema validasi dengan Zod
-const userSchema = z.object({
-  name: z.string().min(2, "Nama minimal 2 karakter"),
-  phone: z.string().min(5, "Nomor telepon minimal 5 karakter"),
-  address: z.string().min(5, "Alamat minimal 5 karakter"),
+const debtSchema = z.object({
+  userId: z.string().min(1, "Pilih user terlebih dahulu"),
+  amount: z
+    .string()
+    .regex(/^\d+$/, "Jumlah harus berupa angka")
+    .refine((val) => parseInt(val, 10) > 0, "Jumlah harus lebih besar dari 0"),
+  date: z.string().min(1, "Tanggal utang wajib diisi"),
 });
 
 interface Props {
+  users: { id: string; name: string }[]; // List user untuk dropdown pilih user
   onSuccess: () => void;
 }
 
 const initialForm = {
-  name: "",
-  phone: "",
-  address: "",
+  userId: "",
+  amount: "",
+  date: "",
 };
 
-export default function UserForm({ onSuccess }: Props) {
+export default function DebtForm({ users, onSuccess }: Props) {
   const { success, error } = useToastNotify();
 
   const [form, setForm] = useState(initialForm);
@@ -55,7 +58,8 @@ export default function UserForm({ onSuccess }: Props) {
   };
 
   const handleInputChange =
-    (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setForm({ ...form, [field]: e.target.value });
       if (formErrors[field]) {
         setFormErrors({ ...formErrors, [field]: undefined });
@@ -65,7 +69,7 @@ export default function UserForm({ onSuccess }: Props) {
   const handleSubmit = async () => {
     setFormErrors({});
 
-    const validation = userSchema.safeParse(form);
+    const validation = debtSchema.safeParse(form);
     if (!validation.success) {
       const errors: Partial<Record<keyof typeof form, string>> = {};
       validation.error.errors.forEach((err) => {
@@ -78,7 +82,7 @@ export default function UserForm({ onSuccess }: Props) {
 
     try {
       setIsLoading(true);
-      const res = await fetch("/api/user", {
+      const res = await fetch("/api/debt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -89,22 +93,26 @@ export default function UserForm({ onSuccess }: Props) {
         if (result?.field) {
           setFormErrors({ [result.field]: result.message });
         } else {
-          throw new Error(result?.message || "Gagal menambahkan user");
+          throw new Error(result?.message || "Gagal menambahkan utang");
         }
         setIsLoading(false);
         return;
       }
 
-      const result = await res.json();
-      success(`${result.data?.name || "User"} berhasil ditambahkan`);
+      await res.json();
+      success(
+        `Utang berhasil ditambahkan untuk user ${
+          users.find((u) => u.id === form.userId)?.name || ""
+        }`
+      );
       onSuccess();
       setOpen(false);
     } catch (err: unknown) {
       if (err instanceof Error) {
-        error(err.message || "Terjadi kesalahan saat menambahkan user");
+        error(err.message || "Terjadi kesalahan saat menambahkan utang");
         console.error(err);
       } else {
-        error("Terjadi kesalahan saat menambahkan user");
+        error("Terjadi kesalahan saat menambahkan utang");
         console.error("Unknown error:", err);
       }
     } finally {
@@ -115,15 +123,15 @@ export default function UserForm({ onSuccess }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all">
-          <FiUserPlus className="mr-2 h-4 w-4" />
-          Tambah User
+        <Button className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md hover:shadow-lg transition-all">
+          <FiPlusCircle className="mr-2 h-4 w-4" />
+          Tambah Utang
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">
-            Tambah User Baru
+            Tambah Utang Baru
           </DialogTitle>
         </DialogHeader>
 
@@ -135,53 +143,63 @@ export default function UserForm({ onSuccess }: Props) {
           }}
         >
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-gray-700 font-medium">
-              Nama Lengkap
+            <Label htmlFor="userId" className="text-gray-700 font-medium">
+              Pilih User
             </Label>
-            <Input
-              id="name"
-              value={form.name}
-              onChange={handleInputChange("name")}
-              className={`${formErrors.name ? "border-red-500" : ""}`}
-              placeholder="Masukkan nama lengkap"
+            <select
+              id="userId"
+              value={form.userId}
+              onChange={handleInputChange("userId")}
+              className={`w-full rounded-md border border-gray-300 px-3 py-2 ${
+                formErrors.userId ? "border-red-500" : ""
+              }`}
               disabled={isLoading}
-            />
-            {formErrors.name && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.name}</p>
+            >
+              <option value="">-- Pilih User --</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
+            {formErrors.userId && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.userId}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-gray-700 font-medium">
-              Nomor Telepon
+            <Label htmlFor="amount" className="text-gray-700 font-medium">
+              Nominal Utang (Rp)
             </Label>
             <Input
-              id="phone"
-              value={form.phone}
-              onChange={handleInputChange("phone")}
-              className={`${formErrors.phone ? "border-red-500" : ""}`}
-              placeholder="Masukkan nomor telepon"
+              id="amount"
+              value={form.amount}
+              onChange={handleInputChange("amount")}
+              className={`${formErrors.amount ? "border-red-500" : ""}`}
+              placeholder="Masukkan jumlah utang"
               disabled={isLoading}
+              inputMode="numeric"
+              pattern="[0-9]*"
             />
-            {formErrors.phone && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.phone}</p>
+            {formErrors.amount && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.amount}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address" className="text-gray-700 font-medium">
-              Alamat
+            <Label htmlFor="date" className="text-gray-700 font-medium">
+              Tanggal Utang
             </Label>
             <Input
-              id="address"
-              value={form.address}
-              onChange={handleInputChange("address")}
-              className={`${formErrors.address ? "border-red-500" : ""}`}
-              placeholder="Masukkan alamat"
+              id="date"
+              type="date"
+              value={form.date}
+              onChange={handleInputChange("date")}
+              className={`${formErrors.date ? "border-red-500" : ""}`}
               disabled={isLoading}
             />
-            {formErrors.address && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.address}</p>
+            {formErrors.date && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.date}</p>
             )}
           </div>
 
@@ -197,10 +215,10 @@ export default function UserForm({ onSuccess }: Props) {
             </Button>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md"
+              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md"
               disabled={isLoading}
             >
-              {isLoading ? "Menyimpan..." : "Simpan User"}
+              {isLoading ? "Menyimpan..." : "Simpan Utang"}
             </Button>
           </div>
         </form>

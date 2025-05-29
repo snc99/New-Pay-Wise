@@ -48,9 +48,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Pencatatan",
-      url: "/dashboard/debit",
+      url: "/dashboard/debt",
       icon: BookOpen,
-      isActive: pathname === "/dashboard/debit",
+      isActive: pathname === "/dashboard/debt",
     },
     {
       title: "Pembayaran",
