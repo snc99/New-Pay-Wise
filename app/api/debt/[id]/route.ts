@@ -91,6 +91,20 @@ export async function DELETE(
       );
     }
 
+    // Cek apakah debt sudah ada payment terkait
+    const paymentCount = await prisma.payment.count({
+      where: { debtId: id },
+    });
+
+    if (paymentCount > 0) {
+      return NextResponse.json(
+        {
+          message: "Utang tidak bisa dihapus karena pembayaran belum selesai.",
+        },
+        { status: 400 }
+      );
+    }
+
     await prisma.debt.delete({
       where: { id },
     });
