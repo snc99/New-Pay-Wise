@@ -19,18 +19,7 @@ import {
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import Image from "next/image";
-
-interface Debt {
-  id: string;
-  amount: number; // ubah jadi number agar konsisten dan aman saat formatting
-  date: string;
-  user: {
-    id: string;
-    name: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
+import { Debt } from "@/types/debt";
 
 interface DebtTableProps {
   data: Debt[];

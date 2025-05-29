@@ -10,28 +10,7 @@ import EditDebtModal from "@/components/debt/edit-modal";
 import DebtForm from "@/components/debt/debt-form";
 import DebtTable from "@/components/debt/tabel";
 import { DeleteDebtModal } from "@/components/debt/delete";
-
-interface User {
-  id: string;
-  name: string;
-  phone: string;
-  address: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Debt {
-  id: string;
-  userId: string;
-  amount: number;
-  date: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    name: string;
-  };
-}
+import { Debt, User } from "@/types/debt";
 
 export default function DebtPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -51,8 +30,11 @@ export default function DebtPage() {
     try {
       const res = await fetch("/api/user");
       if (!res.ok) throw new Error("Gagal memuat user");
-      const data = await res.json();
-      setUsers(data);
+
+      const json = await res.json();
+      const users = Array.isArray(json) ? json : json.data; // fleksibel
+
+      setUsers(users);
     } catch (err) {
       error("Gagal memuat data user");
       console.error(err);
@@ -65,20 +47,16 @@ export default function DebtPage() {
     try {
       const res = await fetch(`/api/debt?page=${page}&search=${search}`);
       if (!res.ok) throw new Error("Gagal memuat hutang");
-      const { data, pagination } = await res.json();
 
-      // Gabungkan user info ke setiap debt
-      const debtsWithUser: Debt[] = data.map((debt: any) => {
-        const user = users.find((u) => u.id === debt.userId);
-        return {
-          ...debt,
-          user: user
-            ? { id: user.id, name: user.name }
-            : { id: "", name: "Tidak diketahui" },
-        };
-      });
+      const {
+        data,
+        pagination,
+      }: {
+        data: Debt[];
+        pagination: { totalPages: number; currentPage: number };
+      } = await res.json();
 
-      setDebts(debtsWithUser);
+      setDebts(data);
       setTotalPages(pagination.totalPages);
       setCurrentPage(pagination.currentPage);
     } catch (err) {
@@ -92,6 +70,8 @@ export default function DebtPage() {
   // Pertama, ambil users, lalu setelah user selesai, fetch data utang
   useEffect(() => {
     fetchUsers();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -159,7 +139,9 @@ export default function DebtPage() {
               onSearch={handleSearch}
               className="w-full sm:w-64"
             />
-            <DebtForm users={users} onSuccess={() => fetchDebts(1)} />
+            {users.length > 0 && (
+              <DebtForm users={users} onSuccess={() => fetchDebts(1)} />
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
