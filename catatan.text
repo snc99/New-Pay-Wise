@@ -1,13 +1,14 @@
-// Langkah-langkah untuk Push ke GitHub
-// 1. git status (Periksa perubahan yang ada pada proyek/optional)
-// 2. git add . (menambahkan semua perubahan sekaligus)
-// 3. git commit -m "Pesan commit yang perubahan"
-// 4. git push origin main
+Langkah-langkah untuk Push ke GitHub
+- git pull (untuk ambil update terbaru dari tim)
+- git status (Periksa perubahan yang ada pada proyek/optional)
+- git add . (menambahkan semua perubahan sekaligus)
+- git commit -m "Pesan commit yang perubahan"
+- 4. git push origin main
 
-// Tarik Perubahan (Pull) dari Remote
-// 1. git fetch (tarik dari github ke local)
-// 2. git checkout developer
-// 3. git pull origin developer
+Tarik Perubahan (Pull) dari Remote
+- git fetch (tarik dari github ke local)
+- git checkout developer
+- git pull origin developer
 
 # Recommended for most uses
 DATABASE_URL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
