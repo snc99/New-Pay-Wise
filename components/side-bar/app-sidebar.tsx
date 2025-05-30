@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import {
+  BookOpen,
+  CreditCard,
+  Ellipsis,
+  RefreshCw,
+  Settings2,
+  SquareTerminal,
+  User,
+} from "lucide-react";
 
 import { NavMain } from "@/components/side-bar/nav-main";
 import { NavUser } from "@/components/side-bar/nav-user";
@@ -43,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     {
       title: "Pengguna",
       url: "/dashboard/user",
-      icon: Bot,
+      icon: User,
       isActive: pathname === "/dashboard/user",
     },
     {
@@ -55,8 +63,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     {
       title: "Pembayaran",
       url: "/dashboard/payment",
-      icon: Settings2,
+      icon: CreditCard,
       isActive: pathname === "/dashboard/payment",
+    },
+    {
+      title: "Status Pembayaran",
+      url: "/dashboard/summary",
+      icon: RefreshCw,
+      isActive: pathname === "/dashboard/summary",
     },
   ];
 
@@ -75,9 +89,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       : []),
     {
       title: "Lainnya",
-      url: "/",
-      icon: SquareTerminal,
-      isActive: pathname === "/",
+      url: "/dashboard",
+      icon: Ellipsis,
+      isActive: pathname === "/dashboard",
     },
   ];
 

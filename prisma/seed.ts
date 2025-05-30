@@ -20,6 +20,18 @@ async function main() {
     },
   });
 
+  await prisma.admin.upsert({
+    where: { email: "irvan@paywise.com" },
+    update: {},
+    create: {
+      username: "irvan23",
+      email: "irvan@paywise.com",
+      name: "Super Admin",
+      password: hashedPassword,
+      role: Role.SUPERADMIN,
+    },
+  });
+
   // buat admin biasa
   await prisma.admin.upsert({
     where: { email: "admin@example.com" },

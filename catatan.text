@@ -10,6 +10,10 @@ Tarik Perubahan (Pull) dari Remote
 - git checkout developer
 - git pull origin developer
 
+- npm run seed (untuk jalankan seed)
+
+============ SET UP CLOUD DB =======================
+
 # Recommended for most uses
 DATABASE_URL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
 
@@ -34,6 +38,12 @@ POSTGRES_URL_NO_SSL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n
 POSTGRES_PRISMA_URL=postgres://neondb_owner:rEDIpi6ZeJ7j@ep-weathered-poetry-a1n304cv-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true&connect_timeout=15
 
 NEXTAUTH_SECRET=Irvansandy123@
+
+============== SET UP LOCAL DB ===================
+
+DATABASE_URL="postgresql://postgres:admin@localhost:5432/paywise?schema=public"
+NEXTAUTH_SECRET=Irvansandy123@
+
 
 ==========================================
 // types/next-auth.d.ts

@@ -2,68 +2,68 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { debtSchema } from "@/lib/validation-zod/debt";
+// import { debtSchema } from "@/lib/validation-zod/debt";
 
-export async function PUT(
-  req: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    const params = await context.params;
-    const { id } = params;
+// export async function PUT(
+//   req: NextRequest,
+//   context: { params: Promise<{ id: string }> }
+// ) {
+//   try {
+//     const params = await context.params;
+//     const { id } = params;
 
-    if (!id) {
-      return NextResponse.json(
-        { message: "ID tidak ditemukan" },
-        { status: 400 }
-      );
-    }
+//     if (!id) {
+//       return NextResponse.json(
+//         { message: "ID tidak ditemukan" },
+//         { status: 400 }
+//       );
+//     }
 
-    const requestData = await req.json();
+//     const requestData = await req.json();
 
-    const parsed = await debtSchema.safeParseAsync({ ...requestData, id });
+//     const parsed = await debtSchema.safeParseAsync({ ...requestData, id });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { message: "Validasi gagal", errors: parsed.error.flatten() },
-        { status: 400 }
-      );
-    }
+//     if (!parsed.success) {
+//       return NextResponse.json(
+//         { message: "Validasi gagal", errors: parsed.error.flatten() },
+//         { status: 400 }
+//       );
+//     }
 
-    const existingDebt = await prisma.debt.findUnique({ where: { id } });
+//     const existingDebt = await prisma.debt.findUnique({ where: { id } });
 
-    if (!existingDebt) {
-      return NextResponse.json(
-        { message: "Data utang tidak ditemukan" },
-        { status: 404 }
-      );
-    }
+//     if (!existingDebt) {
+//       return NextResponse.json(
+//         { message: "Data utang tidak ditemukan" },
+//         { status: 404 }
+//       );
+//     }
 
-    const updatedDebt = await prisma.debt.update({
-      where: { id },
-      data: {
-        userId: parsed.data.userId,
-        amount: parseFloat(parsed.data.amount),
-        date: new Date(parsed.data.date),
-      },
-    });
+//     const updatedDebt = await prisma.debt.update({
+//       where: { id },
+//       data: {
+//         userId: parsed.data.userId,
+//         amount: parseFloat(parsed.data.amount),
+//         date: new Date(parsed.data.date),
+//       },
+//     });
 
-    return NextResponse.json(
-      {
-        status: true,
-        message: "Data utang berhasil diperbarui",
-        data: updatedDebt,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Gagal memperbarui data utang:", error);
-    return NextResponse.json(
-      { message: "Gagal memperbarui data utang" },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json(
+//       {
+//         status: true,
+//         message: "Data utang berhasil diperbarui",
+//         data: updatedDebt,
+//       },
+//       { status: 200 }
+//     );
+//   } catch (error) {
+//     console.error("Gagal memperbarui data utang:", error);
+//     return NextResponse.json(
+//       { message: "Gagal memperbarui data utang" },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function DELETE(
   req: NextRequest,
