@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useToastNotify } from "@/lib/useToastNotify";
 import { z } from "zod";
 import { FiPlusCircle } from "react-icons/fi";
+import Select from "react-select";
 
 const debtSchema = z.object({
   userId: z.string().min(1, "Pilih user terlebih dahulu"),
@@ -146,22 +147,29 @@ export default function DebtForm({ users, onSuccess }: Props) {
             <Label htmlFor="userId" className="text-gray-700 font-medium">
               Pilih User
             </Label>
-            <select
-              id="userId"
-              value={form.userId}
-              onChange={handleInputChange("userId")}
-              className={`w-full rounded-md border border-gray-300 px-3 py-2 ${
-                formErrors.userId ? "border-red-500" : ""
-              }`}
-              disabled={isLoading}
-            >
-              <option value="">-- Pilih User --</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              inputId="userId"
+              isDisabled={isLoading}
+              options={users.map((user) => ({
+                value: user.id,
+                label: user.name,
+              }))}
+              value={
+                users
+                  .map((user) => ({ value: user.id, label: user.name }))
+                  .find((option) => option.value === form.userId) || null
+              }
+              onChange={(selectedOption) =>
+                setForm({ ...form, userId: selectedOption?.value || "" })
+              }
+              classNames={{
+                control: () =>
+                  `border ${
+                    formErrors.userId ? "border-red-500" : "border-gray-300"
+                  } rounded-md`,
+              }}
+              placeholder="-- Pilih User --"
+            />
             {formErrors.userId && (
               <p className="text-sm text-red-500 mt-1">{formErrors.userId}</p>
             )}

@@ -35,6 +35,7 @@ export default function DebtTable({ data, onDelete }: DebtTableProps) {
             <TableHead>Nominal Utang</TableHead>
             <TableHead>Tanggal Utang</TableHead>
             <TableHead>Dibuat</TableHead>
+            <TableHead className="text-right">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

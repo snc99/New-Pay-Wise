@@ -9,11 +9,11 @@ async function main() {
 
   // buat superadmin
   await prisma.admin.upsert({
-    where: { email: "superadmin@example.com" },
+    where: { email: "superadmin@paywise.co.id" },
     update: {},
     create: {
       username: "superadmin",
-      email: "superadmin@example.com",
+      email: "superadmin@paywise.co.id",
       name: "Super Admin",
       password: hashedPassword,
       role: Role.SUPERADMIN,
@@ -21,11 +21,11 @@ async function main() {
   });
 
   await prisma.admin.upsert({
-    where: { email: "irvan@paywise.com" },
+    where: { email: "irvan@paywise.co.id" },
     update: {},
     create: {
       username: "irvan23",
-      email: "irvan@paywise.com",
+      email: "irvan@paywise.co.id",
       name: "Super Admin",
       password: hashedPassword,
       role: Role.SUPERADMIN,
@@ -34,11 +34,11 @@ async function main() {
 
   // buat admin biasa
   await prisma.admin.upsert({
-    where: { email: "admin@example.com" },
+    where: { email: "admin@paywise.co.id" },
     update: {},
     create: {
       username: "admin",
-      email: "admin@example.com",
+      email: "admin@paywise.co.id",
       name: "Admin User",
       password: hashedPassword,
       role: Role.ADMIN,

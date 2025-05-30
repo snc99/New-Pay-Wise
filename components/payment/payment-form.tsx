@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useToastNotify } from "@/lib/useToastNotify";
 import { z } from "zod";
 import { FiPlusCircle } from "react-icons/fi";
+import Select from "react-select";
 
 const paymentSchema = z.object({
   debtId: z.string().min(1, "Pilih utang terlebih dahulu"),
@@ -43,6 +44,11 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
   const [debts, setDebts] = useState<
     { id: string; userName: string; remainingDebt: number }[]
   >([]);
+
+  const debtOptions = debts.map((d) => ({
+    value: d.id,
+    label: `${d.userName} - Sisa Rp ${d.remainingDebt.toLocaleString()}`,
+  }));
 
   useEffect(() => {
     if (!open) resetForm();
@@ -151,22 +157,22 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
             <Label htmlFor="debtId" className="text-gray-700 font-medium">
               Pilih Utang
             </Label>
-            <select
-              id="debtId"
-              value={form.debtId}
-              onChange={handleInputChange("debtId")}
-              className={`w-full rounded-md border px-3 py-2 ${
-                formErrors.debtId ? "border-red-500" : "border-gray-300"
-              }`}
-              disabled={isLoading}
-            >
-              <option value="">-- Pilih Utang --</option>
-              {debts.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.userName} - Sisa Rp {d.remainingDebt.toLocaleString()}
-                </option>
-              ))}
-            </select>
+            <Select
+              inputId="debtId"
+              isDisabled={isLoading}
+              options={debtOptions}
+              value={
+                debtOptions.find((opt) => opt.value === form.debtId) || null
+              }
+              onChange={(selectedOption) =>
+                setForm({ ...form, debtId: selectedOption?.value || "" })
+              }
+              classNamePrefix="react-select"
+              placeholder="-- Pilih Utang --"
+            />
+            {formErrors.debtId && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.debtId}</p>
+            )}
             {formErrors.debtId && (
               <p className="text-sm text-red-500 mt-1">{formErrors.debtId}</p>
             )}
