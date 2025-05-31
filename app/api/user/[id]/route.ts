@@ -4,6 +4,20 @@ import prisma from "@/lib/prisma";
 import { userSchema } from "@/lib/validation-zod/user";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function GET(
+  _req: Request,
+  { params }: { params: { id: string } }
+) {
+  const user = await prisma.user.findUnique({
+    where: { id: params.id },
+  });
+
+  if (!user)
+    return NextResponse.json({ message: "User not found" }, { status: 404 });
+
+  return NextResponse.json({ id: user.id, name: user.name });
+}
+
 export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }

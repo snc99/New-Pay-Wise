@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node --loader ts-node/esm prisma/seed.ts",
+    "seed-admin": "node --loader ts-node/esm prisma/seed-admin.ts",
+    "seed-user": "node --loader ts-node/esm prisma/seed-user.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

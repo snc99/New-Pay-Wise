@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useToastNotify } from "@/lib/useToastNotify";
 import { z } from "zod";
 import { FiPlusCircle } from "react-icons/fi";
-import Select from "react-select";
+import AsyncSelect from "react-select/async";
 
 const debtSchema = z.object({
   userId: z.string().min(1, "Pilih user terlebih dahulu"),
@@ -38,6 +38,11 @@ const initialForm = {
 
 export default function DebtForm({ users, onSuccess }: Props) {
   const { success, error } = useToastNotify();
+
+  const [selectedUser, setSelectedUser] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
 
   const [form, setForm] = useState(initialForm);
   const [formErrors, setFormErrors] = useState<
@@ -121,6 +126,36 @@ export default function DebtForm({ users, onSuccess }: Props) {
     }
   };
 
+  const loadUserOptions = async (inputValue: string) => {
+    const query = inputValue.trim(); // hapus spasi di awal/akhir
+    if (!query) return [];
+
+    const res = await fetch(
+      `/api/user/select/search?q=${encodeURIComponent(query)}`
+    );
+    if (!res.ok) return [];
+
+    return await res.json();
+  };
+
+  useEffect(() => {
+    const loadSelectedUser = async () => {
+      if (form.userId && !selectedUser) {
+        try {
+          const res = await fetch(`/api/user/${form.userId}`);
+          if (!res.ok) return;
+
+          const data = await res.json();
+          setSelectedUser({ value: data.id, label: data.name });
+        } catch (err) {
+          console.error("Gagal memuat user:", err);
+        }
+      }
+    };
+
+    loadSelectedUser();
+  }, [form.userId, selectedUser]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -147,29 +182,26 @@ export default function DebtForm({ users, onSuccess }: Props) {
             <Label htmlFor="userId" className="text-gray-700 font-medium">
               Pilih User
             </Label>
-            <Select
+            <AsyncSelect
               inputId="userId"
+              cacheOptions
+              defaultOptions
+              loadOptions={loadUserOptions}
               isDisabled={isLoading}
-              options={users.map((user) => ({
-                value: user.id,
-                label: user.name,
-              }))}
-              value={
-                users
-                  .map((user) => ({ value: user.id, label: user.name }))
-                  .find((option) => option.value === form.userId) || null
-              }
-              onChange={(selectedOption) =>
-                setForm({ ...form, userId: selectedOption?.value || "" })
-              }
+              value={form.userId ? selectedUser : null}
+              onChange={(selectedOption) => {
+                setForm({ ...form, userId: selectedOption?.value || "" });
+                setSelectedUser(selectedOption || null);
+              }}
+              placeholder="-- Cari & Pilih User --"
               classNames={{
                 control: () =>
                   `border ${
                     formErrors.userId ? "border-red-500" : "border-gray-300"
                   } rounded-md`,
               }}
-              placeholder="-- Pilih User --"
             />
+
             {formErrors.userId && (
               <p className="text-sm text-red-500 mt-1">{formErrors.userId}</p>
             )}
@@ -226,7 +258,7 @@ export default function DebtForm({ users, onSuccess }: Props) {
               className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md"
               disabled={isLoading}
             >
-              {isLoading ? "Menyimpan..." : "Simpan Utang"}
+              {isLoading ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </form>

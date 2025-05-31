@@ -133,7 +133,7 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md">
+        <Button className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md hover:shadow-lg transition-all">
           <FiPlusCircle className="mr-2 h-4 w-4" />
           Tambah Pembayaran
         </Button>
@@ -228,10 +228,10 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
             </Button>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md"
+              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md hover:shadow-lg transition-all"
               disabled={isLoading}
             >
-              {isLoading ? "Menyimpan..." : "Simpan Pembayaran"}
+              {isLoading ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </form>
