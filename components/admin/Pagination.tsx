@@ -60,16 +60,20 @@ export function Pagination({
 
         {pagesToShow.map((page, idx) =>
           page === "..." ? (
-            <span key={idx} className="px-2 text-muted-foreground">
+            <span
+              key={`ellipsis-${idx}`}
+              className="px-2 text-muted-foreground"
+            >
               ...
             </span>
           ) : (
             <Button
-              key={page}
+              key={`page-${page}`}
               variant={page === currentPage ? "default" : "outline"}
               size="sm"
               className={cn(
-                page === currentPage && "bg-blue-100 text-blue-800"
+                page === currentPage &&
+                  "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md hover:shadow-lg transition-all duration-300"
               )}
               onClick={() => onPageChange(page)}
             >

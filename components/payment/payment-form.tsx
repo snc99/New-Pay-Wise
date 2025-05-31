@@ -168,7 +168,7 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
                 setForm({ ...form, debtId: selectedOption?.value || "" })
               }
               classNamePrefix="react-select"
-              placeholder="-- Pilih Utang --"
+              placeholder="Pilih Utang"
             />
             {formErrors.debtId && (
               <p className="text-sm text-red-500 mt-1">{formErrors.debtId}</p>

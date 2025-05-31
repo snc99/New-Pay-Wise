@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import { useToastNotify } from "@/lib/useToastNotify";
 import { z } from "zod";
 import { FiPlusCircle } from "react-icons/fi";
 import AsyncSelect from "react-select/async";
+import { Calendar } from "lucide-react";
 
 const debtSchema = z.object({
   userId: z.string().min(1, "Pilih user terlebih dahulu"),
@@ -25,8 +26,13 @@ const debtSchema = z.object({
   date: z.string().min(1, "Tanggal utang wajib diisi"),
 });
 
+interface UserOption {
+  value: string;
+  label: string;
+}
+
 interface Props {
-  users: { id: string; name: string }[]; // List user untuk dropdown pilih user
+  users: { id: string; name: string }[];
   onSuccess: () => void;
 }
 
@@ -36,14 +42,11 @@ const initialForm = {
   date: "",
 };
 
-export default function DebtForm({ users, onSuccess }: Props) {
+export default function DebtForm({ onSuccess }: Props) {
   const { success, error } = useToastNotify();
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedUser, setSelectedUser] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
-
+  const [selectedUser, setSelectedUser] = useState<UserOption | null>(null);
   const [form, setForm] = useState(initialForm);
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof typeof initialForm, string>>
@@ -51,14 +54,14 @@ export default function DebtForm({ users, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Reset form saat dialog ditutup
   useEffect(() => {
-    if (!open) {
-      resetForm();
-    }
+    if (!open) resetForm();
   }, [open]);
 
   const resetForm = () => {
     setForm(initialForm);
+    setSelectedUser(null);
     setFormErrors({});
     setIsLoading(false);
   };
@@ -72,16 +75,18 @@ export default function DebtForm({ users, onSuccess }: Props) {
       }
     };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setFormErrors({});
 
     const validation = debtSchema.safeParse(form);
     if (!validation.success) {
-      const errors: Partial<Record<keyof typeof form, string>> = {};
-      validation.error.errors.forEach((err) => {
+      const errors = validation.error.errors.reduce((acc, err) => {
         const field = err.path[0] as keyof typeof form;
-        errors[field] = err.message;
-      });
+        acc[field] = err.message;
+        return acc;
+      }, {} as typeof formErrors);
+
       setFormErrors(errors);
       return;
     }
@@ -96,74 +101,51 @@ export default function DebtForm({ users, onSuccess }: Props) {
 
       if (!res.ok) {
         const result = await res.json();
-        if (result?.field) {
-          setFormErrors({ [result.field]: result.message });
-        } else {
-          throw new Error(result?.message || "Gagal menambahkan utang");
-        }
-        setIsLoading(false);
-        return;
+        throw new Error(result?.message || "Gagal menambahkan utang");
       }
 
-      await res.json();
       success(
-        `Utang berhasil ditambahkan untuk user ${
-          users.find((u) => u.id === form.userId)?.name || ""
-        }`
+        `Utang berhasil ditambahkan untuk ${selectedUser?.label || "user"}`
       );
       onSuccess();
       setOpen(false);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        error(err.message || "Terjadi kesalahan saat menambahkan utang");
-        console.error(err);
-      } else {
-        error("Terjadi kesalahan saat menambahkan utang");
-        console.error("Unknown error:", err);
-      }
+    } catch (err) {
+      error(err instanceof Error ? err.message : "Terjadi kesalahan");
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loadUserOptions = async (inputValue: string) => {
-    const query = inputValue.trim(); // hapus spasi di awal/akhir
+  const loadUserOptions = async (inputValue: string): Promise<UserOption[]> => {
+    const query = inputValue.trim();
     if (!query) return [];
 
-    const res = await fetch(
-      `/api/user/select/search?q=${encodeURIComponent(query)}`
-    );
-    if (!res.ok) return [];
-
-    return await res.json();
+    try {
+      const res = await fetch(
+        `/api/user/select/search?q=${encodeURIComponent(query)}`
+      );
+      if (!res.ok) return [];
+      return await res.json();
+    } catch (err) {
+      console.error("Gagal memuat user:", err);
+      return [];
+    }
   };
 
-  useEffect(() => {
-    const loadSelectedUser = async () => {
-      if (form.userId && !selectedUser) {
-        try {
-          const res = await fetch(`/api/user/${form.userId}`);
-          if (!res.ok) return;
-
-          const data = await res.json();
-          setSelectedUser({ value: data.id, label: data.name });
-        } catch (err) {
-          console.error("Gagal memuat user:", err);
-        }
-      }
-    };
-
-    loadSelectedUser();
-  }, [form.userId, selectedUser]);
+  const openDatePicker = () => {
+    dateInputRef.current?.showPicker();
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md hover:shadow-lg transition-all">
+        <Button className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow hover:shadow-md transition-all">
           <FiPlusCircle className="mr-2 h-4 w-4" />
           Tambah Utang
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[500px] rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">
@@ -171,91 +153,101 @@ export default function DebtForm({ users, onSuccess }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <form
-          className="grid gap-5 py-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-        >
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          {/* User Selection */}
           <div className="space-y-2">
-            <Label htmlFor="userId" className="text-gray-700 font-medium">
-              Pilih User
-            </Label>
+            <Label htmlFor="userId">Pilih User</Label>
             <AsyncSelect
               inputId="userId"
               cacheOptions
               defaultOptions
               loadOptions={loadUserOptions}
               isDisabled={isLoading}
-              value={form.userId ? selectedUser : null}
-              onChange={(selectedOption) => {
-                setForm({ ...form, userId: selectedOption?.value || "" });
-                setSelectedUser(selectedOption || null);
+              value={selectedUser}
+              onChange={(selected) => {
+                setSelectedUser(selected);
+                setForm({ ...form, userId: selected?.value || "" });
               }}
-              placeholder="-- Cari & Pilih User --"
+              placeholder="Cari & Pilih User"
+              classNamePrefix="select"
               classNames={{
-                control: () =>
-                  `border ${
-                    formErrors.userId ? "border-red-500" : "border-gray-300"
-                  } rounded-md`,
+                control: (state) =>
+                  `border rounded-md ${
+                    formErrors.userId
+                      ? "border-red-500"
+                      : state.isFocused
+                      ? "border-blue-500 ring-1 ring-blue-500"
+                      : "border-gray-300"
+                  }`,
               }}
             />
-
             {formErrors.userId && (
               <p className="text-sm text-red-500 mt-1">{formErrors.userId}</p>
             )}
           </div>
 
+          {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-gray-700 font-medium">
-              Nominal Utang (Rp)
-            </Label>
+            <Label htmlFor="amount">Nominal Utang (Rp)</Label>
             <Input
               id="amount"
               value={form.amount}
               onChange={handleInputChange("amount")}
-              className={`${formErrors.amount ? "border-red-500" : ""}`}
+              className={formErrors.amount ? "border-red-500" : ""}
               placeholder="Masukkan jumlah utang"
               disabled={isLoading}
               inputMode="numeric"
-              pattern="[0-9]*"
             />
             {formErrors.amount && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.amount}</p>
+              <p className="text-sm text-red-500">{formErrors.amount}</p>
             )}
           </div>
 
+          {/* Date Input */}
           <div className="space-y-2">
-            <Label htmlFor="date" className="text-gray-700 font-medium">
-              Tanggal Utang
-            </Label>
-            <Input
-              id="date"
-              type="date"
-              value={form.date}
-              onChange={handleInputChange("date")}
-              className={`${formErrors.date ? "border-red-500" : ""}`}
-              disabled={isLoading}
-            />
+            <Label htmlFor="date">Tanggal Utang</Label>
+            <div className="relative">
+              <Input
+                ref={dateInputRef}
+                id="date"
+                type="date"
+                value={form.date}
+                onChange={handleInputChange("date")}
+                className={`
+                  w-full pl-3 pr-10 py-2 rounded-md border
+                  ${formErrors.date ? "border-red-500" : "border-gray-300"}
+                  ${isLoading ? "bg-gray-100" : ""}
+                  [&::-webkit-calendar-picker-indicator]:hidden
+                `}
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={openDatePicker}
+                disabled={isLoading}
+              >
+                <Calendar className="h-5 w-5" />
+              </button>
+            </div>
             {formErrors.date && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.date}</p>
+              <p className="text-sm text-red-500">{formErrors.date}</p>
             )}
           </div>
 
+          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="border-gray-300 hover:bg-gray-50"
               disabled={isLoading}
             >
               Batal
             </Button>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-md"
+              className="bg-blue-600 hover:bg-blue-700"
               disabled={isLoading}
             >
               {isLoading ? "Menyimpan..." : "Simpan"}
