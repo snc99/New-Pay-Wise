@@ -1,6 +1,6 @@
 import { compare } from "bcryptjs";
 import prisma from "@/lib/prisma";
-import { NextAuthOptions } from "next-auth";
+import { authOptions } from "./authOptions";
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
 
@@ -75,7 +75,5 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
-export default handler;
+export const GET = NextAuth(authOptions);
+export const POST = NextAuth(authOptions);
