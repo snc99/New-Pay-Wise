@@ -1,10 +1,9 @@
-import { compare } from "bcryptjs";
-import prisma from "@/lib/prisma";
-import { authOptions } from "./authOptions";
-import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "@/lib/prisma";
+import { compare } from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -19,18 +18,14 @@ export const authOptions: NextAuthOptions = {
           where: { username: credentials.username },
         });
 
-        if (!user) {
-          return null;
-        }
+        if (!user) return null;
 
         const isPasswordCorrect = await compare(
           credentials.password,
           user.password
         );
 
-        if (!isPasswordCorrect) {
-          return null;
-        }
+        if (!isPasswordCorrect) return null;
 
         return {
           id: user.id,
@@ -44,9 +39,7 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/login",
-    signOut: "/auth/logout",
     error: "/auth/login",
-    newUser: "/dashboard",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -56,24 +49,17 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-
     async session({ session, token }) {
-      if (typeof token.role === "string") {
-        session.user.role = token.role;
-      }
-      if (typeof token.username === "string") {
-        session.user.username = token.username;
-      }
+      session.user.role = token.role;
+      session.user.username = token.username;
       return session;
     },
   },
-
   session: {
     strategy: "jwt",
     maxAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
+});
 
-export const GET = NextAuth(authOptions);
-export const POST = NextAuth(authOptions);
+export { handler as GET, handler as POST };
