@@ -14,16 +14,18 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials) return null;
 
+        const { username, password } = credentials as {
+          username: string;
+          password: string;
+        };
+
         const user = await prisma.admin.findUnique({
-          where: { username: credentials.username },
+          where: { username },
         });
 
         if (!user) return null;
 
-        const isPasswordCorrect = await compare(
-          credentials.password,
-          user.password
-        );
+        const isPasswordCorrect = await compare(password, user.password);
 
         if (!isPasswordCorrect) return null;
 

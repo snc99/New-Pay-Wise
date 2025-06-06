@@ -61,16 +61,31 @@ export default function DebtSummaryTable({ data }: DebtSummaryTableProps) {
             data.map((item) => (
               <TableRow key={item.userId}>
                 <TableCell>{item.userName}</TableCell>
-                <TableCell>
+                <TableCell
+                  className={
+                    item.totalDebt === 0 ? "text-muted-foreground" : ""
+                  }
+                >
                   Rp {item.totalDebt.toLocaleString("id-ID")}
                 </TableCell>
+
                 <TableCell>
                   Rp {item.totalPaid.toLocaleString("id-ID")}
                 </TableCell>
                 <TableCell>
                   Rp {item.remaining.toLocaleString("id-ID")}
                 </TableCell>
-                <TableCell>{item.status}</TableCell>
+                <TableCell>
+                  <span
+                    className={`inline-block px-2 py-1 rounded-md text-xs font-semibold ${
+                      item.status === "Lunas"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
+                </TableCell>
               </TableRow>
             ))
           )}
