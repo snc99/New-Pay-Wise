@@ -42,8 +42,8 @@ export function DeleteDebtModal({
       if (!res.ok) throw new Error("Gagal menghapus utang");
 
       success(`Utang sebesar Rp${debt.amount} berhasil dihapus`);
-      onDeleted();
       onClose();
+      onDeleted();
     } catch (err) {
       error("Terjadi kesalahan saat menghapus utang");
       console.error(err);
@@ -53,7 +53,12 @@ export function DeleteDebtModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
       <DialogContent className="sm:max-w-[420px] text-center px-6 py-8">
         <div className="flex justify-center mb-6">
           <Image

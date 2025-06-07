@@ -13,15 +13,17 @@ import Image from "next/image";
 interface DebtSummary {
   userId: string;
   userName: string;
-  totalDebt: number; // total utang
-  totalPaid: number; // total pembayaran
-  remaining: number; // sisa utang
-  status: string; // "Lunas" atau "Belum Lunas"
+  totalDebt: number;
+  totalPaid: number;
+  remaining: number;
+  status: string;
 }
 
 interface DebtSummaryTableProps {
   data: DebtSummary[];
 }
+
+const formatRupiah = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
 
 export default function DebtSummaryTable({ data }: DebtSummaryTableProps) {
   return (
@@ -61,19 +63,14 @@ export default function DebtSummaryTable({ data }: DebtSummaryTableProps) {
             data.map((item) => (
               <TableRow key={item.userId}>
                 <TableCell>{item.userName}</TableCell>
+                <TableCell>{formatRupiah(item.totalDebt)}</TableCell>
+                <TableCell>{formatRupiah(item.totalPaid)}</TableCell>
                 <TableCell
                   className={
-                    item.totalDebt === 0 ? "text-muted-foreground" : ""
+                    item.remaining > 0 ? "text-red-600 font-medium" : ""
                   }
                 >
-                  Rp {item.totalDebt.toLocaleString("id-ID")}
-                </TableCell>
-
-                <TableCell>
-                  Rp {item.totalPaid.toLocaleString("id-ID")}
-                </TableCell>
-                <TableCell>
-                  Rp {item.remaining.toLocaleString("id-ID")}
+                  {formatRupiah(item.remaining)}
                 </TableCell>
                 <TableCell>
                   <span

@@ -35,15 +35,13 @@ export function DeleteUserModal({
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/user/${user.id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/user/${user.id}`, { method: "DELETE" });
 
       if (!res.ok) throw new Error("Gagal menghapus pengguna");
 
       success(`${user.name} berhasil dihapus`);
-      onDeleted();
-      onClose();
+      onClose(); // Tutup modal dulu
+      onDeleted(); // Baru refresh data di parent
     } catch (err) {
       error("Terjadi kesalahan saat menghapus");
       console.error(err);
@@ -53,8 +51,17 @@ export function DeleteUserModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[420px] text-center px-6 py-8">
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        console.log("Dialog onOpenChange:", isOpen);
+        if (!isOpen) onClose();
+      }}
+    >
+      <DialogContent
+        className="sm:max-w-[420px] text-center px-6 py-8"
+        aria-describedby="delete-user-description"
+      >
         <div className="flex justify-center mb-6">
           <Image
             src="/delete-warning.svg"

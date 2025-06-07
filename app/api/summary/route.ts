@@ -20,7 +20,7 @@ export async function GET(request: Request) {
           }
         : {}),
       debts: {
-        some: {}, // tambahkan ini
+        some: {}, // hanya user yang punya utang
       },
     };
 
@@ -32,8 +32,6 @@ export async function GET(request: Request) {
         orderBy: { name: "asc" },
         include: {
           debts: {
-            orderBy: { createdAt: "desc" }, // ambil utang terbaru
-            take: 1, // hanya 1 per user
             include: {
               payments: true,
             },
@@ -44,24 +42,19 @@ export async function GET(request: Request) {
     ]);
 
     const summary = users.map((user) => {
-      const latestDebt = user.debts[0];
-
-      if (!latestDebt) {
-        return {
-          userId: user.id,
-          userName: user.name,
-          totalDebt: 0,
-          totalPaid: 0,
-          remaining: 0,
-          status: "Lunas",
-        };
-      }
-
-      const totalDebt = latestDebt.amount.toNumber();
-      const totalPaid = latestDebt.payments.reduce(
-        (sum, p) => sum + p.amount.toNumber(),
+      const totalDebt = user.debts.reduce(
+        (sum, debt) => sum + debt.amount.toNumber(),
         0
       );
+
+      const totalPaid = user.debts.reduce((sum, debt) => {
+        const paid = debt.payments.reduce(
+          (subSum, payment) => subSum + payment.amount.toNumber(),
+          0
+        );
+        return sum + paid;
+      }, 0);
+
       const remaining = Math.max(totalDebt - totalPaid, 0);
 
       return {
