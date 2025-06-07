@@ -19,10 +19,17 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { Payment } from "@/types/payment";
 
-interface PaymentTableProps {
-  data: Payment[];
-  onDelete: (payment: Payment) => void;
+interface PaymentWithRemaining extends Payment {
+  totalRemaining: number;
+  remainingCalculated?: number;
 }
+
+interface PaymentTableProps {
+  data: PaymentWithRemaining[];
+  onDelete: (payment: PaymentWithRemaining) => void;
+}
+
+const formatRupiah = (num: number) => `Rp ${num.toLocaleString("id-ID")}`;
 
 export default function PaymentTable({ data, onDelete }: PaymentTableProps) {
   return (
@@ -34,14 +41,13 @@ export default function PaymentTable({ data, onDelete }: PaymentTableProps) {
             <TableHead>Nominal Bayar</TableHead>
             <TableHead>Sisa Utang</TableHead>
             <TableHead>Tanggal Bayar</TableHead>
-            <TableHead>Dibuat</TableHead>
             <TableHead className="text-right">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6}>
+              <TableCell colSpan={5}>
                 <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
                   <Image
                     src="/data-not-found.svg"
@@ -63,21 +69,13 @@ export default function PaymentTable({ data, onDelete }: PaymentTableProps) {
             data.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>{payment.debt.user.name}</TableCell>
+                <TableCell>{formatRupiah(Number(payment.amount))}</TableCell>
+
                 <TableCell>
-                  Rp {payment.amount.toLocaleString("id-ID")}
-                </TableCell>
-                <TableCell>
-                  Rp {payment.remaining.toLocaleString("id-ID")}
+                  {formatRupiah(payment.totalRemaining || 0)}
                 </TableCell>
                 <TableCell>
                   {new Date(payment.paidAt).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </TableCell>
-                <TableCell>
-                  {new Date(payment.createdAt).toLocaleDateString("id-ID", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",

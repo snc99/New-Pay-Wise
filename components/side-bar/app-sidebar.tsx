@@ -32,9 +32,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isSuperAdmin = session?.user?.role === "SUPERADMIN";
   const pathname = usePathname();
 
-  console.log("Session:", session);
-  console.log("Session Role:", session?.user?.role);
-
   const userData = {
     name: session?.user?.name || "Admin",
     username: session?.user?.username || "Admin",

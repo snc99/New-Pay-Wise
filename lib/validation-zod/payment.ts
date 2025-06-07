@@ -1,11 +1,12 @@
 import { z } from "zod";
 
 export const paymentSchema = z.object({
-  debtId: z.string().min(1, "ID utang wajib diisi"),
-  amount: z.number().positive("Nominal pembayaran harus lebih dari 0"),
+  userId: z.string().min(1, "ID user wajib diisi"),
+  amount: z
+    .number({ invalid_type_error: "Jumlah harus berupa angka" })
+    .int("Jumlah harus bilangan bulat")
+    .positive("Jumlah harus lebih dari 0"),
   paidAt: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Tanggal pembayaran tidak valid",
   }),
 });
-
-export type PaymentInput = z.infer<typeof paymentSchema>;
