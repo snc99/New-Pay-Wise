@@ -1,4 +1,4 @@
-Langkah-langkah untuk Push ke GitHub
+# Langkah-langkah untuk Push ke GitHub
 
 - git pull (untuk ambil update terbaru dari tim)
 - git status (Periksa perubahan yang ada pada proyek/optional)
@@ -6,7 +6,7 @@ Langkah-langkah untuk Push ke GitHub
 - git commit -m "Pesan commit yang perubahan"
 - git push origin main
 
-Tarik Perubahan (Pull) dari Remote
+# Tarik Perubahan (Pull) dari Remote
 
 - git fetch (tarik dari github ke local)
 - git checkout developer
