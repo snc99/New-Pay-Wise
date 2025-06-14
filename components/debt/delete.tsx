@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -72,9 +73,9 @@ export function DeleteDebtModal({
           <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
             Yakin ingin menghapus utang {debt?.user?.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
-            Data utang ini akan dihapus secara permanen.
-          </p>
+          <DialogDescription className="text-sm text-muted-foreground text-center">
+            Data pengguna ini akan dihapus secara permanen.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 flex justify-center gap-3">

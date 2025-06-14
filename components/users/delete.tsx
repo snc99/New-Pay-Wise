@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,6 +29,18 @@ export function DeleteUserModal({
 }: DeleteUserModalProps) {
   const [loading, setLoading] = useState(false);
   const { success, error } = useToastNotify();
+
+  // useEffect(() => {
+  //   if (!open) {
+  //     document.body.classList.remove("overflow-hidden");
+
+  //     setTimeout(() => {
+  //       if (document.activeElement instanceof HTMLElement) {
+  //         document.activeElement.blur();
+  //       }
+  //     }, 0);
+  //   }
+  // }, [open]);
 
   const handleDelete = async () => {
     if (!user) return;
@@ -58,10 +71,7 @@ export function DeleteUserModal({
         if (!isOpen) onClose();
       }}
     >
-      <DialogContent
-        className="sm:max-w-[420px] text-center px-6 py-8"
-        aria-describedby="delete-user-description"
-      >
+      <DialogContent className="sm:max-w-[420px] text-center px-6 py-8">
         <div className="flex justify-center mb-6">
           <Image
             src="/delete-warning.svg"
@@ -74,9 +84,9 @@ export function DeleteUserModal({
           <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
             Yakin ingin menghapus {user?.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
+          <DialogDescription className="text-sm text-muted-foreground text-center">
             Data pengguna ini akan dihapus secara permanen.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 flex justify-center gap-3">

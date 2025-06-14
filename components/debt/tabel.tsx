@@ -85,7 +85,14 @@ export default function DebtTable({ data, onDelete }: DebtTableProps) {
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem> */}
                       <DropdownMenuItem
-                        onClick={() => onDelete(debt)}
+                        onClick={() => {
+                          if (document.activeElement instanceof HTMLElement) {
+                            document.activeElement.blur();
+                          }
+                          setTimeout(() => {
+                            onDelete(debt);
+                          }, 0);
+                        }}
                         className="text-red-600"
                       >
                         <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Hapus

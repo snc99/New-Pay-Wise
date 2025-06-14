@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -74,9 +75,9 @@ export function DeletePaymentModal({
           <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
             Yakin ingin menghapus pembayaran {payment?.debt.user.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
-            Data pembayaran ini akan dihapus secara permanen.
-          </p>
+          <DialogDescription className="text-sm text-muted-foreground text-center">
+            Data pengguna ini akan dihapus secara permanen.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 flex justify-center gap-3">

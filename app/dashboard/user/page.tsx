@@ -80,7 +80,6 @@ export default function UserPage() {
   };
 
   const closeDeleteModal = () => {
-    console.log("closeDeleteModal called");
     setDeleteModalOpen(false);
     setDeleteUser(null);
   };

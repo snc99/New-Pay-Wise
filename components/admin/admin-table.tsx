@@ -136,7 +136,14 @@ export default function AdminTable({
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => onDelete(admin)}
+                        onClick={() => {
+                          if (document.activeElement instanceof HTMLElement) {
+                            document.activeElement.blur();
+                          }
+                          setTimeout(() => {
+                            onDelete(admin);
+                          }, 0);
+                        }}
                         className="text-red-600"
                       >
                         <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Hapus

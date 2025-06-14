@@ -4,8 +4,6 @@ import prisma from "@/lib/prisma";
 import { userSchema } from "@/lib/validation-zod/user";
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = 'edge'; // Wajib untuk mendukung async params
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -17,22 +15,16 @@ export async function GET(
   });
 
   if (!user) {
-    return new Response(
-      JSON.stringify({ message: 'User not found' }),
-      {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ message: "User not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  return new Response(
-    JSON.stringify({ id: user.id, name: user.name }),
-    {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return new Response(JSON.stringify({ id: user.id, name: user.name }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 export async function PUT(
