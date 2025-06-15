@@ -91,8 +91,18 @@ export async function POST(req: Request) {
         status: 201,
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("POST /api/debt error:", error);
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") {
+        return NextResponse.json(
+          { error: "User yang dipilih tidak ditemukan." },
+          { status: 400 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: "Terjadi kesalahan saat menambahkan utang." },
       { status: 500 }

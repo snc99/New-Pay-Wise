@@ -10,6 +10,8 @@ import UserTable from "@/components/users/tabel";
 import EditModal from "@/components/users/edit-modal";
 import { DeleteUserModal } from "@/components/users/delete";
 import UserForm from "@/components/users/user-form";
+import { fetchJsonSafe } from "@/lib/utils/fetchJsonSafe";
+import { getErrorMessage } from "@/lib/utils/error";
 
 interface User {
   id: string;
@@ -35,14 +37,19 @@ export default function UserPage() {
   const fetchUsers = async (page: number = 1, search: string = searchTerm) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/user?page=${page}&search=${search}`);
-      if (!res.ok) throw new Error("Failed to fetch");
-      const { data, pagination } = await res.json();
-      setUsers(data);
-      setTotalPages(pagination.totalPages);
-      setCurrentPage(pagination.currentPage);
+      const res = await fetchJsonSafe<{
+        data: User[];
+        pagination: {
+          totalPages: number;
+          currentPage: number;
+        };
+      }>(`/api/user?page=${page}&search=${search}`);
+
+      setUsers(res.data);
+      setTotalPages(res.pagination.totalPages);
+      setCurrentPage(res.pagination.currentPage);
     } catch (err) {
-      error("Gagal memuat data admin");
+      error(getErrorMessage(err));
       console.error(err);
     } finally {
       setIsLoading(false);

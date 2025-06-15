@@ -48,7 +48,13 @@ export async function GET() {
   } catch (error) {
     console.error("[DEBT_SELECT_PAYMENT]", error);
     return NextResponse.json(
-      { message: "Gagal mengambil data untuk select pembayaran" },
+      {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Gagal mengambil data untuk select pembayaran",
+      },
       { status: 500 }
     );
   }

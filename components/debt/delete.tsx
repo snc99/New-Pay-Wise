@@ -40,13 +40,21 @@ export function DeleteDebtModal({
         method: "DELETE",
       });
 
-      if (!res.ok) throw new Error("Gagal menghapus utang");
+      const data = await res.json(); // ambil body responsenya
+
+      if (!res.ok) throw new Error(data.message || "Gagal menghapus utang");
 
       success(`Utang sebesar Rp${debt.amount} berhasil dihapus`);
       onClose();
       onDeleted();
-    } catch (err) {
-      error("Terjadi kesalahan saat menghapus utang");
+    } catch (err: unknown) {
+      let message = "Terjadi kesalahan saat menghapus utang";
+
+      if (err instanceof Error) {
+        message = err.message;
+      }
+
+      error(message);
       console.error(err);
     } finally {
       setLoading(false);

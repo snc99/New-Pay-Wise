@@ -11,6 +11,8 @@ import DebtForm from "@/components/debt/debt-form";
 import DebtTable from "@/components/debt/tabel";
 import { DeleteDebtModal } from "@/components/debt/delete";
 import { Debt, User } from "@/types/debt";
+import { getErrorMessage } from "@/lib/utils/error";
+import { fetchJsonSafe } from "@/lib/utils/fetchJsonSafe";
 
 export default function DebtPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -32,42 +34,36 @@ export default function DebtPage() {
       if (!res.ok) throw new Error("Gagal memuat user");
 
       const json = await res.json();
-      const users = Array.isArray(json) ? json : json.data; // fleksibel
+      const users = Array.isArray(json) ? json : json.data;
 
       setUsers(users);
-    } catch (err) {
-      error("Gagal memuat data user");
+    } catch (err: unknown) {
+      error(getErrorMessage(err)); // aman & konsisten
       console.error(err);
     }
   };
 
   // Fetch data utang lalu padukan dengan data user berdasarkan userId
+
   const fetchDebts = async (page: number = 1, search: string = searchTerm) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/debt?page=${page}&search=${search}`);
-      if (!res.ok) throw new Error("Gagal memuat hutang");
-
-      const {
-        data,
-        pagination,
-      }: {
+      const { data, pagination } = await fetchJsonSafe<{
         data: Debt[];
         pagination: { totalPages: number; currentPage: number };
-      } = await res.json();
+      }>(`/api/debt?page=${page}&search=${search}`);
 
       setDebts(data);
       setTotalPages(pagination.totalPages);
       setCurrentPage(pagination.currentPage);
     } catch (err) {
-      error("Gagal memuat data hutang");
+      error(getErrorMessage(err));
       console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Pertama, ambil users, lalu setelah user selesai, fetch data utang
   useEffect(() => {
     fetchUsers();
 
