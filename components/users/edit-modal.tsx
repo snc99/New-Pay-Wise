@@ -107,7 +107,11 @@ export default function ModalEditUser({
             <Button variant="outline" onClick={onClose}>
               Batal
             </Button>
-            <Button onClick={handleUpdate} disabled={loading}>
+            <Button
+              onClick={handleUpdate}
+              disabled={loading}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md"
+            >
               {loading ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </div>

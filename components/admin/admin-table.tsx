@@ -132,7 +132,13 @@ export default function AdminTable({
                       >
                         <Mail className="mr-2 h-4 w-4" /> Salin Email
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(admin)}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setTimeout(() => {
+                            onEdit(admin);
+                          }, 0);
+                        }}
+                      >
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem

@@ -106,9 +106,16 @@ export default function UserTable({ data, onEdit, onDelete }: UserTableProps) {
                       >
                         <MapPin className="mr-2 h-4 w-4" /> Salin Alamat
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(user)}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setTimeout(() => {
+                            onEdit(user);
+                          }, 0);
+                        }}
+                      >
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem>
+
                       <DropdownMenuItem
                         onClick={() => {
                           if (document.activeElement instanceof HTMLElement) {

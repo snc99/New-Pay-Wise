@@ -1,17 +1,16 @@
 # Langkah-langkah untuk Push ke GitHub
-
-- git pull (untuk ambil update terbaru dari tim)
+- git pull origin dev (langsung gabungkan ke local)
 - git status (Periksa perubahan yang ada pada proyek/optional)
 - git add . (menambahkan semua perubahan sekaligus)
 - git commit -m "Pesan commit yang perubahan"
 - git push origin main
 
 # Tarik Perubahan (Pull) dari Remote
-
 - git fetch (lihat dulu sebelum gabungkan ke local)
-- git checkout dev (cek branch)
-- git pull origin dev (langsung gabungkan ke local)
+- git checkout dev (pindah branch)
+- git merge dev (merger dari dev ke main)
 
+# jalankan seed
 - npm run seed-admin (untuk jalankan seed admin)
 - npm run seed-user (untuk jalankan seed user)
 
