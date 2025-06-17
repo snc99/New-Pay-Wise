@@ -12,7 +12,8 @@
 - git checkout dev (cek branch)
 - git pull origin dev (langsung gabungkan ke local)
 
-- npm run seed-admin (untuk jalankan seed)
+- npm run seed-admin (untuk jalankan seed admin)
+- npm run seed-user (untuk jalankan seed user)
 
 ============ SET UP CLOUD DB =======================
 
