@@ -8,7 +8,13 @@
 # Tarik Perubahan (Pull) dari Remote
 - git fetch (lihat dulu sebelum gabungkan ke local)
 - git checkout dev (pindah branch)
+
+# Merge branch 
+- git checkout dev (pindah branch)
 - git merge dev (merger dari dev ke main)
+- git add . (menambahkan semua perubahan sekaligus)
+- git commit -m "Pesan commit yang perubahan"
+- git push origin main
 
 # jalankan seed
 - npm run seed-admin (untuk jalankan seed admin)
