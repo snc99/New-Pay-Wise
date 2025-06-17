@@ -17,17 +17,20 @@ import { FiPlusCircle } from "react-icons/fi";
 import Select from "react-select";
 
 const paymentSchema = z.object({
-  debtId: z.string().min(1, "Pilih utang terlebih dahulu"),
+  userId: z.string().min(1, "ID utang wajib diisi"),
   amount: z
     .string()
-    .regex(/^\d+$/, "Jumlah harus berupa angka")
+    .min(1, "Nominal wajib diisi")
+    .regex(/^\d+$/, "Nominal harus berupa angka")
     .transform((val) => Number(val))
-    .refine((val) => val > 0, "Jumlah harus lebih besar dari 0"),
-  paidAt: z.string().min(1, "Tanggal pembayaran harus diisi"),
+    .refine((val) => val > 0, "Nominal harus lebih dari 0"),
+  paidAt: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Tanggal pembayaran tidak valid",
+  }),
 });
 
 const initialForm = {
-  debtId: "",
+  userId: "",
   amount: "",
   paidAt: "",
 };
@@ -42,12 +45,12 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [debts, setDebts] = useState<
-    { id: string; userName: string; remainingDebt: number }[]
+    { userId: string; userName: string; totalRemaining: number }[]
   >([]);
 
-  const debtOptions = debts.map((d) => ({
-    value: d.id,
-    label: `${d.userName} - Sisa Rp ${d.remainingDebt.toLocaleString()}`,
+  const debtOptions = debts.map((user) => ({
+    value: user.userId,
+    label: `${user.userName} - Sisa Rp ${user.totalRemaining.toLocaleString()}`,
   }));
 
   useEffect(() => {
@@ -55,11 +58,12 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
   }, [open]);
 
   useEffect(() => {
-    // Fetch only when modal dibuka
     if (open) {
       fetch("/api/debt/select-payment")
         .then((res) => res.json())
-        .then((data) => setDebts(data))
+        .then((data) => {
+          setDebts(data);
+        })
         .catch(() => error("Gagal memuat data utang"));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,7 +119,7 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
       }
 
       await res.json();
-      const user = debts.find((d) => d.id === form.debtId)?.userName || "";
+      const user = debts.find((u) => u.userId === form.userId)?.userName || "";
       success(`Pembayaran berhasil ditambahkan untuk ${user}`);
       onSuccess();
       setOpen(false);
@@ -154,27 +158,27 @@ export default function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
         >
           {/* Debt selection */}
           <div className="space-y-2">
-            <Label htmlFor="debtId" className="text-gray-700 font-medium">
+            <Label htmlFor="userId" className="text-gray-700 font-medium">
               Pilih Utang
             </Label>
             <Select
-              inputId="debtId"
+              inputId="userId"
               isDisabled={isLoading}
               options={debtOptions}
               value={
-                debtOptions.find((opt) => opt.value === form.debtId) || null
+                debtOptions.find((opt) => opt.value === form.userId) || null
               }
               onChange={(selectedOption) =>
-                setForm({ ...form, debtId: selectedOption?.value || "" })
+                setForm({ ...form, userId: selectedOption?.value || "" })
               }
               classNamePrefix="react-select"
               placeholder="Pilih Utang"
             />
-            {formErrors.debtId && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.debtId}</p>
+            {formErrors.userId && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.userId}</p>
             )}
-            {formErrors.debtId && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.debtId}</p>
+            {formErrors.userId && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.userId}</p>
             )}
           </div>
 

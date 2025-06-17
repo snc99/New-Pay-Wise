@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,21 +30,31 @@ export function DeleteUserModal({
   const [loading, setLoading] = useState(false);
   const { success, error } = useToastNotify();
 
+  // useEffect(() => {
+  //   if (!open) {
+  //     document.body.classList.remove("overflow-hidden");
+
+  //     setTimeout(() => {
+  //       if (document.activeElement instanceof HTMLElement) {
+  //         document.activeElement.blur();
+  //       }
+  //     }, 0);
+  //   }
+  // }, [open]);
+
   const handleDelete = async () => {
     if (!user) return;
 
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/user/${user.id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/user/${user.id}`, { method: "DELETE" });
 
       if (!res.ok) throw new Error("Gagal menghapus pengguna");
 
       success(`${user.name} berhasil dihapus`);
-      onDeleted();
-      onClose();
+      onClose(); // Tutup modal dulu
+      onDeleted(); // Baru refresh data di parent
     } catch (err) {
       error("Terjadi kesalahan saat menghapus");
       console.error(err);
@@ -53,7 +64,13 @@ export function DeleteUserModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        console.log("Dialog onOpenChange:", isOpen);
+        if (!isOpen) onClose();
+      }}
+    >
       <DialogContent className="sm:max-w-[420px] text-center px-6 py-8">
         <div className="flex justify-center mb-6">
           <Image
@@ -67,9 +84,9 @@ export function DeleteUserModal({
           <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
             Yakin ingin menghapus {user?.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
+          <DialogDescription className="text-sm text-muted-foreground text-center">
             Data pengguna ini akan dihapus secara permanen.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 flex justify-center gap-3">

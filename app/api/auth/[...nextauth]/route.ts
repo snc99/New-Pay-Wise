@@ -1,10 +1,9 @@
-import { compare } from "bcryptjs";
-import prisma from "@/lib/prisma";
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "@/lib/prisma";
+import { compare } from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -15,22 +14,20 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials) return null;
 
+        const { username, password } = credentials as {
+          username: string;
+          password: string;
+        };
+
         const user = await prisma.admin.findUnique({
-          where: { username: credentials.username },
+          where: { username },
         });
 
-        if (!user) {
-          return null;
-        }
+        if (!user) return null;
 
-        const isPasswordCorrect = await compare(
-          credentials.password,
-          user.password
-        );
+        const isPasswordCorrect = await compare(password, user.password);
 
-        if (!isPasswordCorrect) {
-          return null;
-        }
+        if (!isPasswordCorrect) return null;
 
         return {
           id: user.id,
@@ -44,9 +41,7 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/auth/login",
-    signOut: "/auth/logout",
     error: "/auth/login",
-    newUser: "/dashboard",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -56,25 +51,17 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-
     async session({ session, token }) {
-      if (typeof token.role === "string") {
-        session.user.role = token.role;
-      }
-      if (typeof token.username === "string") {
-        session.user.username = token.username;
-      }
+      session.user.role = token.role;
+      session.user.username = token.username;
       return session;
     },
   },
-
   session: {
     strategy: "jwt",
     maxAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
-
-const handler = NextAuth(authOptions);
+});
 
 export { handler as GET, handler as POST };

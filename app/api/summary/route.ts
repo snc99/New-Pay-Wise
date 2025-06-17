@@ -10,14 +10,19 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
 
   try {
-    const where: Prisma.UserWhereInput = search
-      ? {
-          name: {
-            contains: search,
-            mode: Prisma.QueryMode.insensitive,
-          },
-        }
-      : {};
+    const where: Prisma.UserWhereInput = {
+      ...(search
+        ? {
+            name: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          }
+        : {}),
+      debts: {
+        some: {}, // hanya user yang punya utang
+      },
+    };
 
     const [users, totalUsers] = await Promise.all([
       prisma.user.findMany({
@@ -37,28 +42,28 @@ export async function GET(request: Request) {
     ]);
 
     const summary = users.map((user) => {
-      let totalPaid = 0;
-      let totalRemaining = 0;
+      const totalDebt = user.debts.reduce(
+        (sum, debt) => sum + debt.amount.toNumber(),
+        0
+      );
 
-      user.debts.forEach((debt) => {
-        const debtAmount = debt.amount.toNumber();
-        const paidAmount = debt.payments.reduce(
-          (sum, payment) => sum + payment.amount.toNumber(),
+      const totalPaid = user.debts.reduce((sum, debt) => {
+        const paid = debt.payments.reduce(
+          (subSum, payment) => subSum + payment.amount.toNumber(),
           0
         );
-        const remaining = debtAmount - paidAmount;
+        return sum + paid;
+      }, 0);
 
-        totalRemaining += remaining > 0 ? remaining : 0;
-        totalPaid += paidAmount;
-      });
+      const remaining = Math.max(totalDebt - totalPaid, 0);
 
       return {
         userId: user.id,
         userName: user.name,
-        totalDebt: totalRemaining,
+        totalDebt,
         totalPaid,
-        remaining: totalRemaining,
-        status: totalRemaining <= 0 ? "Lunas" : "Belum Lunas",
+        remaining,
+        status: remaining <= 0 ? "Lunas" : "Belum Lunas",
       };
     });
 

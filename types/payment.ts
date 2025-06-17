@@ -10,3 +10,8 @@ export interface Payment {
     };
   };
 }
+
+export interface PaymentWithRemaining extends Payment {
+  remainingCalculated: number;
+  totalRemaining: number;
+}

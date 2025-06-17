@@ -1,111 +1,141 @@
-// GET semua user dan POST user baru
-
-import prisma from "@/lib/prisma"; // sesuaikan path
+import prisma from "@/lib/prisma";
 import { userSchema } from "@/lib/validation-zod/user";
-import { Prisma } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1");
-  const search = searchParams.get("search") || "";
-  const limit = 7;
-  const skip = (page - 1) * limit;
-
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const where: Prisma.UserWhereInput = search
-      ? {
-          OR: [
-            {
-              name: {
-                contains: search,
-                mode: Prisma.QueryMode.insensitive,
-              },
-            },
-            {
-              phone: {
-                contains: search,
-                mode: Prisma.QueryMode.insensitive,
-              },
-            },
-            {
-              address: {
-                contains: search,
-                mode: Prisma.QueryMode.insensitive,
-              },
-            },
-          ],
-        }
-      : {};
+    const { id } = await params;
 
-    const [users, totalUsers] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.user.count({ where }),
-    ]);
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "User tidak ditemukan" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
-      data: users,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(totalUsers / limit),
-        totalItems: totalUsers,
-      },
+      success: true,
+      data: { id: user.id, name: user.name },
     });
   } catch (error) {
-    console.error(error);
+    console.error("[GET /user/:id]", error);
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Gagal mengambil data user.",
+      },
       { status: 500 }
     );
   }
 }
 
-export async function POST(req: Request) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const body = await req.json();
+    const { id } = await context.params;
 
-    const parsed = userSchema.safeParse(body);
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "ID tidak ditemukan" },
+        { status: 400 }
+      );
+    }
+
+    const requestData = await req.json();
+    const parsed = await userSchema.safeParseAsync({ ...requestData, id });
 
     if (!parsed.success) {
-      const errorMessage = parsed.error.errors[0];
       return NextResponse.json(
         {
           success: false,
-          message: errorMessage.message,
+          message: "Validasi gagal",
+          errors: parsed.error.flatten(),
         },
         { status: 400 }
       );
     }
 
-    const { name, phone, address } = parsed.data;
+    const existingUser = await prisma.user.findUnique({ where: { id } });
 
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        phone,
-        address,
-      },
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, message: "User tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: parsed.data,
     });
 
-    return NextResponse.json(
-      {
-        status: true,
-        message: "User berhasil dibuat",
-        data: newUser,
-      },
-      {
-        status: 201,
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      message: "User berhasil diperbarui",
+      data: updatedUser,
+    });
   } catch (error) {
-    console.error("POST /api/users error:", error);
+    console.error("[PUT /user/:id]", error);
     return NextResponse.json(
-      { error: "Terjadi kesalahan saat membuat user." },
+      {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat memperbarui user",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "ID tidak ditemukan" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { id } });
+
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, message: "User tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.user.delete({ where: { id } });
+
+    return NextResponse.json({
+      success: true,
+      message: "User berhasil dihapus",
+    });
+  } catch (error) {
+    console.error("[DELETE /user/:id]", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Terjadi kesalahan saat menghapus user",
+      },
       { status: 500 }
     );
   }

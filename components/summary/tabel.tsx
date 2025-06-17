@@ -13,15 +13,17 @@ import Image from "next/image";
 interface DebtSummary {
   userId: string;
   userName: string;
-  totalDebt: number; // total utang
-  totalPaid: number; // total pembayaran
-  remaining: number; // sisa utang
-  status: string; // "Lunas" atau "Belum Lunas"
+  totalDebt: number;
+  totalPaid: number;
+  remaining: number;
+  status: string;
 }
 
 interface DebtSummaryTableProps {
   data: DebtSummary[];
 }
+
+const formatRupiah = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
 
 export default function DebtSummaryTable({ data }: DebtSummaryTableProps) {
   return (
@@ -61,16 +63,26 @@ export default function DebtSummaryTable({ data }: DebtSummaryTableProps) {
             data.map((item) => (
               <TableRow key={item.userId}>
                 <TableCell>{item.userName}</TableCell>
-                <TableCell>
-                  Rp {item.totalDebt.toLocaleString("id-ID")}
+                <TableCell>{formatRupiah(item.totalDebt)}</TableCell>
+                <TableCell>{formatRupiah(item.totalPaid)}</TableCell>
+                <TableCell
+                  className={
+                    item.remaining > 0 ? "text-red-600 font-medium" : ""
+                  }
+                >
+                  {formatRupiah(item.remaining)}
                 </TableCell>
                 <TableCell>
-                  Rp {item.totalPaid.toLocaleString("id-ID")}
+                  <span
+                    className={`inline-block px-2 py-1 rounded-md text-xs font-semibold ${
+                      item.status === "Lunas"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
                 </TableCell>
-                <TableCell>
-                  Rp {item.remaining.toLocaleString("id-ID")}
-                </TableCell>
-                <TableCell>{item.status}</TableCell>
               </TableRow>
             ))
           )}

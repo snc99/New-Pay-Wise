@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -67,9 +68,10 @@ export function DeleteAdminModal({
           <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
             Yakin ingin menghapus {admin?.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
+
+          <DialogDescription className="text-sm text-muted-foreground text-center">
             {admin?.name} akan dihapus secara permanen.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 flex justify-center gap-3">

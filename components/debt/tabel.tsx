@@ -34,7 +34,6 @@ export default function DebtTable({ data, onDelete }: DebtTableProps) {
             <TableHead>Nama User</TableHead>
             <TableHead>Nominal Utang</TableHead>
             <TableHead>Tanggal Utang</TableHead>
-            <TableHead>Dibuat</TableHead>
             <TableHead className="text-right">Aksi</TableHead>
           </TableRow>
         </TableHeader>
@@ -63,16 +62,11 @@ export default function DebtTable({ data, onDelete }: DebtTableProps) {
             data.map((debt) => (
               <TableRow key={debt.id}>
                 <TableCell>{debt.user.name}</TableCell>
-                <TableCell>Rp {debt.amount.toLocaleString("id-ID")}</TableCell>
                 <TableCell>
-                  {new Date(debt.date).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  Rp {Number(debt.amount).toLocaleString("id-ID")}
                 </TableCell>
                 <TableCell>
-                  {new Date(debt.createdAt).toLocaleDateString("id-ID", {
+                  {new Date(debt.date).toLocaleDateString("id-ID", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -91,7 +85,14 @@ export default function DebtTable({ data, onDelete }: DebtTableProps) {
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem> */}
                       <DropdownMenuItem
-                        onClick={() => onDelete(debt)}
+                        onClick={() => {
+                          if (document.activeElement instanceof HTMLElement) {
+                            document.activeElement.blur();
+                          }
+                          setTimeout(() => {
+                            onDelete(debt);
+                          }, 0);
+                        }}
                         className="text-red-600"
                       >
                         <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Hapus

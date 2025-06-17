@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -39,13 +40,21 @@ export function DeleteDebtModal({
         method: "DELETE",
       });
 
-      if (!res.ok) throw new Error("Gagal menghapus utang");
+      const data = await res.json(); // ambil body responsenya
+
+      if (!res.ok) throw new Error(data.message || "Gagal menghapus utang");
 
       success(`Utang sebesar Rp${debt.amount} berhasil dihapus`);
-      onDeleted();
       onClose();
-    } catch (err) {
-      error("Terjadi kesalahan saat menghapus utang");
+      onDeleted();
+    } catch (err: unknown) {
+      let message = "Terjadi kesalahan saat menghapus utang";
+
+      if (err instanceof Error) {
+        message = err.message;
+      }
+
+      error(message);
       console.error(err);
     } finally {
       setLoading(false);
@@ -53,7 +62,12 @@ export function DeleteDebtModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
       <DialogContent className="sm:max-w-[420px] text-center px-6 py-8">
         <div className="flex justify-center mb-6">
           <Image
@@ -67,9 +81,9 @@ export function DeleteDebtModal({
           <DialogTitle className="!text-center text-xl font-semibold text-gray-800">
             Yakin ingin menghapus utang {debt?.user?.name}?
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
-            Data utang ini akan dihapus secara permanen.
-          </p>
+          <DialogDescription className="text-sm text-muted-foreground text-center">
+            Data pengguna ini akan dihapus secara permanen.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="mt-6 flex justify-center gap-3">

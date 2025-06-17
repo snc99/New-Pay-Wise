@@ -8,14 +8,15 @@ import { SearchInput } from "@/components/admin/SearchInput";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import PaymentForm from "@/components/payment/payment-form";
 import { DeletePaymentModal } from "@/components/payment/delete";
-import { Payment } from "@/types/payment";
+import { PaymentWithRemaining } from "@/types/payment";
 import { User } from "@/types/user";
 import PaymentTable from "@/components/payment/tabel";
 
 export default function PaymentPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [deletePayment, setDeletePayment] = useState<Payment | null>(null);
+  const [payments, setPayments] = useState<PaymentWithRemaining[]>([]);
+  const [deletePayment, setDeletePayment] =
+    useState<PaymentWithRemaining | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,7 +52,7 @@ export default function PaymentPage() {
         data,
         pagination,
       }: {
-        data: Payment[];
+        data: PaymentWithRemaining[];
         pagination: { totalPages: number; currentPage: number };
       } = await res.json();
 
@@ -88,7 +89,7 @@ export default function PaymentPage() {
     fetchPayments(page);
   };
 
-  const handleDelete = (payment: Payment) => {
+  const handleDelete = (payment: PaymentWithRemaining) => {
     setDeletePayment(payment);
     setDeleteModalOpen(true);
   };

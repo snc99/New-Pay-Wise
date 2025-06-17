@@ -3,6 +3,26 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { paymentSchema } from "@/lib/validation-zod/payment";
 
+type PaymentWithRemaining = Prisma.PaymentGetPayload<{
+  include: {
+    debt: {
+      select: {
+        id: true;
+        amount: true;
+        user: {
+          select: {
+            id: true;
+            name: true;
+          };
+        };
+      };
+    };
+  };
+}> & {
+  remainingCalculated: number;
+  totalRemaining: number;
+};
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page") || "1");
@@ -14,62 +34,102 @@ export async function GET(req: Request) {
     const where: Prisma.PaymentWhereInput = search
       ? {
           debt: {
-            user: {
-              name: {
-                contains: search,
-                mode: "insensitive",
+            is: {
+              user: {
+                is: {
+                  name: {
+                    contains: search,
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
               },
             },
           },
         }
       : {};
 
-    const [payments, totalPayments] = await Promise.all([
-      prisma.payment.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { paidAt: "desc" },
-        select: {
-          id: true,
-          amount: true,
-          remaining: true,
-          paidAt: true,
-          createdAt: true,
-          debt: {
-            select: {
-              user: {
-                select: {
-                  name: true,
-                },
+    const allPayments = await prisma.payment.findMany({
+      where,
+      orderBy: [{ debtId: "asc" }, { paidAt: "asc" }],
+      include: {
+        debt: {
+          select: {
+            id: true,
+            amount: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
               },
             },
           },
         },
-      }),
-      prisma.payment.count({ where }),
-    ]);
+      },
+    });
 
-    const formattedPayments = payments.map((p) => ({
-      ...p,
-      amount: Number(p.amount),
-      remaining: Number(p.remaining),
+    const result: PaymentWithRemaining[] = [];
+    const groupedByDebt = new Map<string, { amount: number; items: typeof allPayments }>();
+
+    for (const p of allPayments) {
+      const key = p.debt.id;
+      if (!groupedByDebt.has(key)) {
+        groupedByDebt.set(key, {
+          amount: Number(p.debt.amount),
+          items: [],
+        });
+      }
+      groupedByDebt.get(key)!.items.push(p);
+    }
+
+    for (const [, group] of groupedByDebt.entries()) {
+      let remaining = group.amount;
+
+      for (const p of group.items) {
+        remaining -= Number(p.amount);
+        result.push({
+          ...p,
+          remainingCalculated: remaining,
+          totalRemaining: 0,
+        });
+      }
+    }
+
+    const allDebts = await prisma.debt.findMany({
+      include: {
+        payments: true,
+        user: true,
+      },
+    });
+
+    const userRemainingMap = new Map<string, number>();
+    for (const debt of allDebts) {
+      const totalPaid = debt.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const remaining = Number(debt.amount) - totalPaid;
+      const userId = debt.user.id;
+      const prev = userRemainingMap.get(userId) || 0;
+      userRemainingMap.set(userId, prev + remaining);
+    }
+
+    const enrichedResult = result.map((item) => ({
+      ...item,
+      totalRemaining: userRemainingMap.get(item.debt.user.id) || 0,
     }));
 
+    const paginated = enrichedResult
+      .sort((a, b) => new Date(b.paidAt).getTime() - new Date(a.paidAt).getTime())
+      .slice(skip, skip + limit);
+
     return NextResponse.json({
-      data: formattedPayments,
+      data: paginated,
       pagination: {
         currentPage: page,
-        totalPages: Math.ceil(totalPayments / limit),
-        totalItems: totalPayments,
+        totalPages: Math.ceil(enrichedResult.length / limit),
+        totalItems: enrichedResult.length,
       },
     });
   } catch (error) {
     console.error("GET /api/payment error:", error);
-    return NextResponse.json(
-      { error: "Gagal mengambil data pembayaran." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Gagal mengambil data pembayaran." }, { status: 500 });
   }
 }
 
@@ -89,57 +149,76 @@ export async function POST(req: Request) {
       );
     }
 
-    const { debtId, amount, paidAt } = parsed.data;
+    const { userId, amount, paidAt } = parsed.data;
+    let remainingAmount = new Prisma.Decimal(amount);
 
-    // Ambil data utang sekarang
-    const existingDebt = await prisma.debt.findUnique({
-      where: { id: debtId },
-      include: {
-        payments: true,
-      },
+    const debts = await prisma.debt.findMany({
+      where: { userId },
+      include: { payments: true },
+      orderBy: { createdAt: "asc" },
     });
 
-    if (!existingDebt) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Data utang tidak ditemukan",
-        },
-        { status: 404 }
+    const unpaidDebts = debts.filter((debt) => {
+      const totalPaid = debt.payments.reduce(
+        (acc, p) => acc.plus(p.amount),
+        new Prisma.Decimal(0)
       );
-    }
+      return debt.amount.minus(totalPaid).greaterThan(0);
+    });
 
-    // Hitung total yang sudah dibayar
-    const totalPaid = existingDebt.payments.reduce((acc, curr) => {
-      return acc.plus(curr.amount);
-    }, new Prisma.Decimal(0));
-
-    const remaining = existingDebt.amount.minus(totalPaid).minus(amount);
-
-    if (remaining.isNegative()) {
+    if (unpaidDebts.length === 0) {
       return NextResponse.json(
         {
           success: false,
-          message: "Nominal pembayaran melebihi sisa utang",
+          message: "User tidak memiliki utang yang belum lunas.",
         },
         { status: 400 }
       );
     }
 
-    const newPayment = await prisma.payment.create({
-      data: {
-        debtId,
-        amount: new Prisma.Decimal(amount),
-        remaining,
+    const paymentsToCreate = [];
+
+    for (const debt of unpaidDebts) {
+      const totalPaid = debt.payments.reduce(
+        (acc, p) => acc.plus(p.amount),
+        new Prisma.Decimal(0)
+      );
+      const remainingDebt = debt.amount.minus(totalPaid);
+
+      if (remainingDebt.lte(0)) continue;
+
+      const paymentForThisDebt = Prisma.Decimal.min(remainingDebt, remainingAmount);
+
+      paymentsToCreate.push({
+        debtId: debt.id,
+        amount: paymentForThisDebt,
+        remaining: remainingDebt.minus(paymentForThisDebt),
         paidAt: new Date(paidAt),
-      },
-    });
+      });
+
+      remainingAmount = remainingAmount.minus(paymentForThisDebt);
+      if (remainingAmount.lte(0)) break;
+    }
+
+    if (remainingAmount.gt(0)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Nominal pembayaran melebihi total sisa utang user.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const createdPayments = await prisma.$transaction(
+      paymentsToCreate.map((data) => prisma.payment.create({ data }))
+    );
 
     return NextResponse.json(
       {
         status: true,
         message: "Pembayaran berhasil dicatat",
-        data: newPayment,
+        data: createdPayments,
       },
       { status: 201 }
     );

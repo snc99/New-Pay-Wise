@@ -5,17 +5,26 @@ import { userSchema } from "@/lib/validation-zod/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const user = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
-  if (!user)
-    return NextResponse.json({ message: "User not found" }, { status: 404 });
+  if (!user) {
+    return new Response(JSON.stringify({ message: "User not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-  return NextResponse.json({ id: user.id, name: user.name });
+  return new Response(JSON.stringify({ id: user.id, name: user.name }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 export async function PUT(
