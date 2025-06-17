@@ -5,38 +5,26 @@ import { userSchema } from "@/lib/validation-zod/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
-  try {
-    const { id } = params;
+  const { id } = context.params;
 
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User tidak ditemukan" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: { id: user.id, name: user.name },
-    });
-  } catch (error) {
-    console.error("[GET /user/:id]", error);
+  if (!user) {
     return NextResponse.json(
-      {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Gagal mengambil data user.",
-      },
-      { status: 500 }
+      { success: false, message: "User tidak ditemukan" },
+      { status: 404 }
     );
   }
+
+  return NextResponse.json({
+    success: true,
+    data: { id: user.id, name: user.name },
+  });
 }
 
 export async function PUT(
