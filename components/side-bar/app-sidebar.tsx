@@ -35,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userData = {
     name: session?.user?.name || "Admin",
     username: session?.user?.username || "Admin",
-    avatar: "/avatars/default.jpg",
+    avatar: "/avatar.png",
   };
 
   const fiturItems = [
