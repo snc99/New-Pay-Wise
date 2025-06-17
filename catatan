@@ -8,11 +8,11 @@
 
 # Tarik Perubahan (Pull) dari Remote
 
-- git fetch (tarik dari github ke local)
-- git checkout developer
-- git pull origin developer
+- git fetch (lihat dulu sebelum gabungkan ke local)
+- git checkout dev (cek branch)
+- git pull origin dev (langsung gabungkan ke local)
 
-- npm run seed (untuk jalankan seed)
+- npm run seed-admin (untuk jalankan seed)
 
 ============ SET UP CLOUD DB =======================
 
