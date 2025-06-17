@@ -14,14 +14,10 @@ export async function GET(req: Request) {
     const where: Prisma.PaymentWhereInput = search
       ? {
           debt: {
-            is: {
-              user: {
-                is: {
-                  name: {
-                    contains: search,
-                    mode: Prisma.QueryMode.insensitive, // fix here
-                  },
-                },
+            user: {
+              name: {
+                contains: search,
+                mode: "insensitive",
               },
             },
           },
@@ -34,14 +30,16 @@ export async function GET(req: Request) {
         skip,
         take: limit,
         orderBy: { paidAt: "desc" },
-        include: {
+        select: {
+          id: true,
+          amount: true,
+          remaining: true,
+          paidAt: true,
+          createdAt: true,
           debt: {
             select: {
-              id: true,
-              amount: true,
               user: {
                 select: {
-                  id: true,
                   name: true,
                 },
               },
@@ -52,8 +50,14 @@ export async function GET(req: Request) {
       prisma.payment.count({ where }),
     ]);
 
+    const formattedPayments = payments.map((p) => ({
+      ...p,
+      amount: Number(p.amount),
+      remaining: Number(p.remaining),
+    }));
+
     return NextResponse.json({
-      data: payments,
+      data: formattedPayments,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalPayments / limit),
