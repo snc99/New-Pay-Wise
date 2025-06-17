@@ -6,25 +6,37 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  try {
+    const { id } = params;
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-  });
-
-  if (!user) {
-    return new Response(JSON.stringify({ message: "User not found" }), {
-      status: 404,
-      headers: { "Content-Type": "application/json" },
+    const user = await prisma.user.findUnique({
+      where: { id },
     });
-  }
 
-  return new Response(JSON.stringify({ id: user.id, name: user.name }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "User tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: { id: user.id, name: user.name },
+    });
+  } catch (error) {
+    console.error("[GET /user/:id]", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Gagal mengambil data user.",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(

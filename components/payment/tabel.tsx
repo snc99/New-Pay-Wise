@@ -17,12 +17,7 @@ import {
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { Payment } from "@/types/payment";
-
-interface PaymentWithRemaining extends Payment {
-  totalRemaining: number;
-  remainingCalculated?: number;
-}
+import { PaymentWithRemaining } from "@/types/payment";
 
 interface PaymentTableProps {
   data: PaymentWithRemaining[];

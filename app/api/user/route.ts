@@ -2,33 +2,51 @@ import prisma from "@/lib/prisma";
 import { userSchema } from "@/lib/validation-zod/user";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const search = searchParams.get("search") || "";
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const limit = 10;
+    const skip = (page - 1) * limit;
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User tidak ditemukan" },
-        { status: 404 }
-      );
-    }
+    const users = await prisma.user.findMany({
+      where: {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    const totalUsers = await prisma.user.count({
+      where: {
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      data: { id: user.id, name: user.name },
+      data: users,
+      pagination: {
+        totalItems: totalUsers,
+        totalPages: Math.ceil(totalUsers / limit),
+        currentPage: page,
+      },
     });
   } catch (error) {
-    console.error("[GET /user/:id]", error);
+    console.error("[GET /user]", error);
     return NextResponse.json(
       {
         success: false,
         message:
-          error instanceof Error ? error.message : "Gagal mengambil data user.",
+          error instanceof Error ? error.message : "Internal Server Error",
       },
       { status: 500 }
     );
